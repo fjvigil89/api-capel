@@ -1,0 +1,10 @@
+flask
+jwt
+flask_jwt_extended
+flask-sqlalchemy
+datetime
+uuid
+mariadb
+pymongo
+bcrypt
+#secrets
