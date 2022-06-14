@@ -10,6 +10,7 @@ import datetime
 #import bcrypt
 import hashlib
 from utils import getAllItems
+from waitress import serve
 
 app = Flask(__name__)
 
@@ -52,6 +53,10 @@ def filterv2(vargs):
 	for i in range(0, len(vargs)):
 		print(vargs[i].split("="))
 	return str(vargs)
-
+""" 
 if __name__ == '__main__':
 	app.run(debug=True)
+ """
+
+if __name__ == "__main__":
+    serve(app, host="0.0.0.0", port=80)

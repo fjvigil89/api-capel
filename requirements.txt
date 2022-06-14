@@ -8,3 +8,4 @@ mariadb
 pymongo
 bcrypt
 #secrets
+waitress
