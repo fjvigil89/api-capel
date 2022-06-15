@@ -1,3 +1,5 @@
+from crypt import methods
+import re
 from flask import Flask, jsonify, make_response, request
 from werkzeug.security import generate_password_hash,check_password_hash
 #from flask_sqlalchemy import SQLAlchemy
@@ -9,8 +11,7 @@ from pymongo import MongoClient
 import datetime
 #import bcrypt
 import hashlib
-from utils import getAllItems
-from waitress import serve
+from utils import getAllItems, filterItems, filterComuna, filterMarca
 
 app = Flask(__name__)
 
@@ -45,18 +46,26 @@ def dailydata(initialdate, finaldate, retail):
 
 	return items
 
-@app.route('/api/v1/filterv2/<s_cadena>/<s_comuna>/<s_ciudad>/<i_marca>', methods=['GET'])
+@app.route('/api/v1/filter/<initialdate>/<finaldate>/<retail> <s_comuna> <i_marca>',  methods=['GET'])
 @jwt_required()
-def filterv2(vargs):
-	vargs = vargs.split("/")
-	#print(type(vargs))
-	for i in range(0, len(vargs)):
-		print(vargs[i].split("="))
-	return str(vargs)
-""" 
+def filter(initialdate, finaldate, retail, s_comuna, i_marca):
+	items = filterItems(initialdate, finaldate, retail, s_comuna, i_marca)
+
+	return items
+
+@app.route('/api/v1/comuna/<initialdate>/<finaldate>/<retail> <s_comuna>', methods=['GET'])
+@jwt_required()
+def comuna(initialdate, finaldate, retail, s_comuna):
+	comunas = filterComuna(initialdate, finaldate, retail, s_comuna)
+
+	return comunas
+
+@app.route('/api/v1/marca/<initialdate>/<finaldate>/<retail> <i_marca>', methods=['GET'])
+@jwt_required()
+def marca(initialdate, finaldate, retail, marca):
+	items = filterMarca(initialdate, finaldate, retail, marca)
+
+	return items
+
 if __name__ == '__main__':
 	app.run(debug=True)
- """
-
-if __name__ == "__main__":
-    serve(app, host="0.0.0.0", port=80)
