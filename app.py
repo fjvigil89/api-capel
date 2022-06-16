@@ -1,5 +1,5 @@
 from crypt import methods
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 from werkzeug.security import generate_password_hash,check_password_hash
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required
 from pymongo import MongoClient
@@ -7,6 +7,7 @@ import datetime
 import bcrypt
 #from utils import getAllItems, filterItems, filterComuna, filterMarca
 from auth import mariaDBConnection, mariaDBConnectionII
+from flask_swagger import swagger
 #from flask_cors import CORS, cross_origin
 #from waitress import serve
 
@@ -18,11 +19,6 @@ client = MongoClient("mongodb+srv://api-capel-access:EpNtgYI8X66oR2O4@cademsmart
 db = client["api-capel"]
 users_collection = db["users"]
 
-#For development purposes
-#client = MongoClient("mongodb+srv://apicapel:N7gySu1HwmzqvTsD@apicapel.scttl.mongodb.net/?retryWrites=true&w=majority")
-#db = client["ApiCapel"]
-#users_collection = db["systemUsers"]
-
 jwt = JWTManager(app) # initialize JWTManager
 app.config['JWT_TOKEN_LOCATION'] = ['headers', 'query_string']
 app.config['JWT_SECRET_KEY'] = 'f8de2f7257f913eecfa9aae8a3c7750e'
@@ -33,7 +29,6 @@ def login():
 
 	login_details = request.args # store the json body request
 	user_from_db = users_collection.find_one({'username': login_details['username']})  # search for user in database
-	print(user_from_db)
 
 	if user_from_db:
 		decrpted_password = bcrypt.checkpw(login_details['password'].encode(), user_from_db['password'].encode())
@@ -416,7 +411,6 @@ def populate():
 	finaldate = datetime.datetime.strptime(request.args.get('finaldate'), "%Y%m%d").date()
 	retail = request.args['retail']
 	distribuidor = request.args['distribuidor']
-	conn1 = mariaDBConnection()
 	conn = mariaDBConnectionII()
 	cursor = conn.cursor()
 
@@ -495,13 +489,19 @@ def populate():
 		(initialdate, finaldate, retail, distribuidor)
 	)
 	conn.commit()
-	
+
 	json_dict = {}
 	json_dict['Message']='Succesfull!!'
-	json_dict['RowCount']= cursor.rowcount 
+	json_dict['RowCount']= str(cursor.rowcount)
 
 	return json_dict,200 
 
+
+@app.route('/api/v1/docs')
+def get_docs():
+    print('Documentación interactiva de APIs!')
+    # url: http://127.0.0.1:5000/api/docs
+    return render_template('swaggerui.html')
  
 if __name__ == '__main__':
 	app.run(debug=True)

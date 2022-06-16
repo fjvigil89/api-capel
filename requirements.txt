@@ -10,3 +10,5 @@ pymongo
 bcrypt
 #secrets
 waitress
+flask-swagger
+jinja2

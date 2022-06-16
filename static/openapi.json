@@ -1,0 +1,66 @@
+
+openapi: "3.0.3"
+info:
+    version: "1.0.0"
+    title: "CADEM API-B2B"
+    description: "Microservicios para el Cálculo Venta Volumen y para el Cálculo DOH - INSTOCK"
+    termsOfService: "http://www.cademsmart.cl/terms/"
+    contact:
+        name: "José Ramón Vidal"
+        email: "jramonholy@gmail.com"
+    license:
+        name: "Apache 2.0"
+        url: "https://www.apache.org/licenses/LICENSE-2.0.html"
+paths:
+    /api/items:
+        get:
+            tags:
+                - "Items (Movimientos)"
+            summary: "Items de la tabla maestra"
+            description: "Devuelve todos los items/movimientos de la tabla maestra"
+            operationId: getItems
+            parameters: [ ]
+            responses:
+                '200':
+                    description: "Query ejecutada con exito!"
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/Items'
+                '404':
+                    description: "Items not found"
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    message:
+                                        type: string
+                                        example: "Items no encontrado"
+components:
+    schemas:
+        Items:
+            type: object
+            properties:
+                i_ean:
+                    type: string
+                i_item:
+                    type: string
+                    example: "Item Stock"
+                i_factor_volumen:
+                    type: number
+                fecha:
+                    type: string
+                    format: "date"
+                venta_unidades:
+                    type: number
+                venta_volumen:
+                    type: number
+                v_venta_volumen:
+                    type: number
+
+www.apache.org (https://www.apache.org/licenses/LICENSE-2.0.html)
+Apache License, Version 2.0
+Home page of The Apache Software Foundation
