@@ -14,7 +14,7 @@ def mariaDBConnection():
         user="api-capel",
         password="fm?p!3qLVMO#D5px",
         host="b2b-capel-app.c6tid4wxmmxn.us-east-1.rds.amazonaws.com",
-        database="b2b-andina"
+        database="b2b-api"
         )
 
         #print("MariaDB Database connection successful")

@@ -1,12 +1,12 @@
-import re
-import mariadb
 import datetime
+import logging
 from auth import mariaDBConnection
 from flask import jsonify, request
 
 def getAllItems(initialdate, finaldate, retail):
 	initialdate = datetime.datetime.strptime(initialdate, "%Y%m%d").date()
 	finaldate = datetime.datetime.strptime(finaldate, "%Y%m%d").date()
+	print(f'{initialdate}, {finaldate}, {retail}')
 	conn = mariaDBConnection()
 	cursor = conn.cursor()
 	cursor.execute(
