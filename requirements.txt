@@ -7,3 +7,4 @@ mariadb
 pymongo
 pymongo[srv]
 bcrypt
+PyJWT
