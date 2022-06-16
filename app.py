@@ -7,8 +7,13 @@ import datetime
 import bcrypt
 from utils import getAllItems, filterItems, filterComuna, filterMarca
 from auth import mariaDBConnection
+from flask_cors import CORS, cross_origin
+
+from waitress import serve
 
 app = Flask(__name__)
+CORS(app)
+
 
 #For production purposes
 client = MongoClient("mongodb+srv://api-capel-access:EpNtgYI8X66oR2O4@cademsmart0.hj6jy.mongodb.net/?retryWrites=true&w=majority")
@@ -378,6 +383,9 @@ def filterciudad():
 
 	return json_dict, 200
 
-
+""" 
 if __name__ == '__main__':
-	app.run(debug=True)
+	app.run(debug=True) """
+
+if __name__ == "__main__":
+    serve(app, host="0.0.0.0", port=80)

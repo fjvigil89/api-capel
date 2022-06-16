@@ -1,4 +1,5 @@
 flask
+Flask-Cors==3.0.10
 jwt
 flask_jwt_extended
 flask-sqlalchemy
