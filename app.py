@@ -1,19 +1,17 @@
 from crypt import methods
-from flask import Flask, jsonify, make_response, request
+from flask import Flask, jsonify, request
 from werkzeug.security import generate_password_hash,check_password_hash
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required
 from pymongo import MongoClient
 import datetime
 import bcrypt
-from utils import getAllItems, filterItems, filterComuna, filterMarca
-from auth import mariaDBConnection
-from flask_cors import CORS, cross_origin
-
-from waitress import serve
+#from utils import getAllItems, filterItems, filterComuna, filterMarca
+from auth import mariaDBConnection, mariaDBConnectionII
+#from flask_cors import CORS, cross_origin
+#from waitress import serve
 
 app = Flask(__name__)
-CORS(app)
-
+#CORS(app)
 
 #For production purposes
 client = MongoClient("mongodb+srv://api-capel-access:EpNtgYI8X66oR2O4@cademsmart0.hj6jy.mongodb.net/?retryWrites=true&w=majority")
@@ -81,8 +79,17 @@ def data():
 		total_venta_unidades += int(i['venta_unidades'])
 		total_venta_valor += int(i['venta_valor'])
 
+	cursorb = conn.cursor()
+	cursorb.execute("Select * from flags")
+	flag = cursorb.fetchall()[0][0]
+	print(type(flag))
+	print(flag)
+
+	#for result in range(0,1):
+	#		print(cursorb.fetchall().index(0))
+
 	metadata_section.append({
-		'preproceso': 'false',
+		'preproceso': flag,
 		'cantidad de registros': len(json_data),
 		'total_venta_unidades': total_venta_unidades,
 		'total_venta_valor': total_venta_valor
@@ -370,8 +377,12 @@ def filterciudad():
 		total_venta_unidades += int(i['venta_unidades'])
 		total_venta_valor += int(i['venta_valor'])
 
+	cursorb = conn.cursor()
+	cursorb.execute("Select * from flags")
+	flag = [cursorb[1]]
+
 	metadata_section.append({
-		'preproceso': 'false',
+		'preproceso': flag,
 		'cantidad de registros': len(json_data),
 		'total_venta_unidades': total_venta_unidades,
 		'total_venta_valor': total_venta_valor
@@ -383,9 +394,103 @@ def filterciudad():
 
 	return json_dict, 200
 
-""" 
-if __name__ == '__main__':
-	app.run(debug=True) """
+@app.route('/api/v1/populate', methods=['GET', 'POST'])
+def populate():
+	initialdate = datetime.datetime.strptime(request.args.get('initialdate'), "%Y%m%d").date()
+	finaldate = datetime.datetime.strptime(request.args.get('finaldate'), "%Y%m%d").date()
+	retail = request.args['retail']
+	distribuidor = request.args['distribuidor']
+	conn1 = mariaDBConnection()
+	conn = mariaDBConnectionII()
+	cursor = conn.cursor()
 
+	cursor.execute(
+		"""
+		INSERT INTO `b2b-api`.movimiento_api_rest (
+		fecha
+		, s_cadena
+		, s_cod_local
+		, cod_item
+		, i_ean
+		, i_distribuidor
+		, s_comuna
+		, s_bandera
+		, s_canal
+		, s_rut_cadena
+		, s_nombre_sala
+		, s_descripcion_cadena
+		, s_rut_supermercado
+		, s_direccion
+		, s_ciudad
+		, i_marca
+		, i_item
+		, venta_unidades
+		, venta_valor
+		, iva
+		)
+		(
+		SELECT
+		fecha
+		, s_cadena
+		, s_cod_local
+		, cod_item
+		, i_ean
+		, i_distribuidor
+		, s_comuna
+		, s_bandera
+		, s_canal
+		, s_rut_cadena
+		, s_nombre_sala
+		, s_descripcion_cadena
+		, s_rut_supermercado
+		, s_direccion
+		, s_ciudad
+		, i_marca
+		, i_item
+		, SUM(venta_unidades) unidades
+		, SUM(venta_valor) valor
+		, SUM(venta_valor) * 0.19 AS 'iva'
+		FROM `b2b-andina`.movimiento
+		INNER JOIN `b2b-andina`.store_master ON s_cadena = retail AND s_cod_local = cod_local
+		INNER JOIN `b2b-andina`.item_master ON i_ean = ean
+		WHERE fecha BETWEEN ? AND ?
+		AND s_cadena = ?
+		AND i_distribuidor = ?
+		GROUP BY
+		fecha
+		, s_cadena
+		, s_cod_local
+		, cod_item
+		, i_ean
+		, i_distribuidor
+		, s_comuna
+		, s_bandera
+		, s_canal
+		, s_rut_cadena
+		, s_nombre_sala
+		, s_descripcion_cadena
+		, s_rut_supermercado
+		, s_direccion
+		, s_ciudad
+		, i_marca
+		, i_item
+		)	
+		""",
+		(initialdate, finaldate, retail, distribuidor)
+	)
+	conn.commit()
+	
+	json_dict = {}
+	json_dict['Message']='Succesfull!!'
+	json_dict['RowCount']= cursor.rowcount 
+
+	return json_dict,200 
+
+ 
+if __name__ == '__main__':
+	app.run(debug=True)
+
+"""
 if __name__ == "__main__":
     serve(app, host="0.0.0.0", port=80)
+"""
