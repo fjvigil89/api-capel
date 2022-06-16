@@ -82,8 +82,6 @@ def data():
 	cursorb = conn.cursor()
 	cursorb.execute("Select * from flags")
 	flag = cursorb.fetchall()[0][0]
-	print(type(flag))
-	print(flag)
 
 	#for result in range(0,1):
 	#		print(cursorb.fetchall().index(0))
@@ -135,8 +133,12 @@ def dailydata():
 		total_venta_unidades += int(i['venta_unidades'])
 		total_venta_valor += int(i['venta_valor'])
 
+	cursorb = conn.cursor()
+	cursorb.execute("Select * from flags")
+	flag = cursorb.fetchall()[0][0]
+
 	metadata_section.append({
-		'preproceso': 'false',
+		'preproceso': flag,
 		'cantidad de registros': len(json_data),
 		'total_venta_unidades': total_venta_unidades,
 		'total_venta_valor': total_venta_valor
@@ -181,6 +183,8 @@ def monthlydata():
 	for i in json_data:
 		total_venta_unidades += int(i['venta_unidades'])
 		total_venta_valor += int(i['venta_valor'])
+	
+	
 
 	metadata_section.append({
 		'preproceso': 'false',
@@ -232,9 +236,13 @@ def filter():
 	for i in json_data:
 		total_venta_unidades += int(i['venta_unidades'])
 		total_venta_valor += int(i['venta_valor'])
+	
+	cursorb = conn.cursor()
+	cursorb.execute("Select * from flags")
+	flag = cursorb.fetchall()[0][0]
 
 	metadata_section.append({
-		'preproceso': 'false',
+		'preproceso': flag,
 		'cantidad de registros': len(json_data),
 		'total_venta_unidades': total_venta_unidades,
 		'total_venta_valor': total_venta_valor
@@ -281,8 +289,12 @@ def filtercadena():
 		total_venta_unidades += int(i['venta_unidades'])
 		total_venta_valor += int(i['venta_valor'])
 
+	cursorb = conn.cursor()
+	cursorb.execute("Select * from flags")
+	flag = cursorb.fetchall()[0][0]
+
 	metadata_section.append({
-		'preproceso': 'false',
+		'preproceso': flag,
 		'cantidad de registros': len(json_data),
 		'total_venta_unidades': total_venta_unidades,
 		'total_venta_valor': total_venta_valor
@@ -329,8 +341,12 @@ def filtermarca():
 		total_venta_unidades += int(i['venta_unidades'])
 		total_venta_valor += int(i['venta_valor'])
 
+	cursorb = conn.cursor()
+	cursorb.execute("Select * from flags")
+	flag = cursorb.fetchall()[0][0]
+
 	metadata_section.append({
-		'preproceso': 'false',
+		'preproceso': flag,
 		'cantidad de registros': len(json_data),
 		'total_venta_unidades': total_venta_unidades,
 		'total_venta_valor': total_venta_valor
@@ -379,7 +395,7 @@ def filterciudad():
 
 	cursorb = conn.cursor()
 	cursorb.execute("Select * from flags")
-	flag = [cursorb[1]]
+	flag = cursorb.fetchall()[0][0]
 
 	metadata_section.append({
 		'preproceso': flag,
