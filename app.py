@@ -550,6 +550,7 @@ def get_docs():
     # url: http://127.0.0.1:5000/api/docs
     return render_template('swaggerui.html')
  
+<<<<<<< HEAD
 if __name__ == '__main__':
 	app.run(debug=True)
 
@@ -557,3 +558,7 @@ if __name__ == '__main__':
 if __name__ == "__main__":
     serve(app, host="0.0.0.0", port=80)
 """
+=======
+if __name__ == '__main__':	
+	app.run(host="0.0.0.0", port=80, debug=True)
+>>>>>>> b372a6b (Syncing master)
