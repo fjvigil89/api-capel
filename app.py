@@ -25,7 +25,13 @@ app.config['JWT_SECRET_KEY'] = 'f8de2f7257f913eecfa9aae8a3c7750e'
 
 @app.route('/')
 def home():
-	return render_template('index.html')
+	return render_template('swaggerui.html')
+""" 
+@app.route('/api/v1/docs', methods=['GET'])
+def get_docs():
+    print('Documentación interactiva de APIs!')
+    # url: http://127.0.0.1:5000/api/docs
+    return render_template('swaggerui.html') """
 
 @app.route('/api/v1/login', methods=['POST'])
 def login():
@@ -547,13 +553,6 @@ def populate():
 
 		return json_dict, 200 
 
-
-@app.route('/api/v1/docs', methods=['GET'])
-def get_docs():
-    print('Documentación interactiva de APIs!')
-    # url: http://127.0.0.1:5000/api/docs
-    return render_template('swaggerui.html')
- 
 
 if __name__ == '__main__':	
 	app.run(host="0.0.0.0", port=80, debug=True)
