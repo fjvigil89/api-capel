@@ -26,9 +26,9 @@ MONGODBUSER = ""
 MONGODBPASSWD = ""
 ```
 ### EndPoints
--/api/v1/login
--/api/v1/data?initialdate=yyyymmdd&finaldate=yyyymmdd
--/api/v1/dailydata?initialdate=yyyymmdd
+*/api/v1/login
+*/api/v1/data?initialdate=yyyymmdd&finaldate=yyyymmdd
+*/api/v1/dailydata?initialdate=yyyymmdd
 -/api/v1/dailydata?initialdate=yyyymmdd
 -/api/v1/monthlydata?initialdate=yyyymmdd
 -/api/v1/filtercadena?initialdate=yyyymmdd&finaldate=yyyymmdd&retail=$retail&comuna=$comuna&marca=$marca&ciudad=$ciudad
