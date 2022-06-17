@@ -8,7 +8,7 @@ import bcrypt
 from auth import mariaDBConnection, mariaDBConnectionII
 from flask_swagger import swagger
 #from flask_cors import CORS, cross_origin
-#from waitress import serve
+
 
 app = Flask(__name__)
 #CORS(app)
@@ -550,10 +550,7 @@ def get_docs():
     # url: http://127.0.0.1:5000/api/docs
     return render_template('swaggerui.html')
  
-if __name__ == '__main__':
-	app.run(debug=True)
 
-"""
-if __name__ == "__main__":
-    serve(app, host="0.0.0.0", port=80)
-"""
+if __name__ == '__main__':	
+	app.run(host="0.0.0.0", port=80, debug=True)
+

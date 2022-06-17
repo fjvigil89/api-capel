@@ -1,14 +1,13 @@
 flask
 Flask-Cors==3.0.10
-#jwt
 flask_jwt_extended
-flask-sqlalchemy
 datetime
 uuid
 mariadb
 pymongo
+pymongo[srv]
 bcrypt
-#secrets
-waitress
 flask-swagger
 jinja2
+PyJWT
+
