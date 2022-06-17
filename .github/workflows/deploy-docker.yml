@@ -68,6 +68,6 @@ jobs:
         before_script: | 
           docker rm -f apicapel
           docker rmi -f fjvigil/api-capel
-        after_script: |          
+        after_script: |
           docker run -p 80:80 --name apicapel -d fjvigil/api-capel
           
