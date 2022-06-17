@@ -25,7 +25,7 @@ app.config['JWT_SECRET_KEY'] = 'f8de2f7257f913eecfa9aae8a3c7750e'
 
 @app.route('/')
 def home():
-	return render_template('index.heml')
+	return render_template('index.html')
 
 @app.route('/api/v1/login', methods=['POST'])
 def login():
