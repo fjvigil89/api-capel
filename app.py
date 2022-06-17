@@ -1,5 +1,4 @@
-from crypt import methods
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 from werkzeug.security import generate_password_hash,check_password_hash
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required
 from pymongo import MongoClient
@@ -7,6 +6,7 @@ import datetime
 import bcrypt
 #from utils import getAllItems, filterItems, filterComuna, filterMarca
 from auth import mariaDBConnection, mariaDBConnectionII
+from flask_swagger import swagger
 #from flask_cors import CORS, cross_origin
 
 
@@ -18,11 +18,6 @@ client = MongoClient("mongodb+srv://api-capel-access:EpNtgYI8X66oR2O4@cademsmart
 db = client["api-capel"]
 users_collection = db["users"]
 
-#For development purposes
-#client = MongoClient("mongodb+srv://apicapel:N7gySu1HwmzqvTsD@apicapel.scttl.mongodb.net/?retryWrites=true&w=majority")
-#db = client["ApiCapel"]
-#users_collection = db["systemUsers"]
-
 jwt = JWTManager(app) # initialize JWTManager
 app.config['JWT_TOKEN_LOCATION'] = ['headers', 'query_string']
 app.config['JWT_SECRET_KEY'] = 'f8de2f7257f913eecfa9aae8a3c7750e'
@@ -33,7 +28,6 @@ def login():
 
 	login_details = request.args # store the json body request
 	user_from_db = users_collection.find_one({'username': login_details['username']})  # search for user in database
-	print(user_from_db)
 
 	if user_from_db:
 		decrpted_password = bcrypt.checkpw(login_details['password'].encode(), user_from_db['password'].encode())
@@ -43,7 +37,7 @@ def login():
 			app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(hours=user_from_db['duration_token_in_hours']) # define the life span of the token
 			return jsonify(access_token=access_token), 200
 
-	return jsonify({'msg': 'The username or password is incorrect'}), 401
+	return jsonify({'msg': 'Nombre de usuario o contraseña incorrectos'}), 401
 
 @app.route('/api/v1/data', methods=['GET'])
 @jwt_required()
@@ -58,7 +52,6 @@ def data():
 			SELECT *
 			FROM movimiento_api_rest
 			WHERE fecha BETWEEN ? AND ?
-			LIMIT 500
 			""",
 			(initialdate, finaldate)
 	)
@@ -104,7 +97,6 @@ def data():
 def dailydata():
 	initialdate = datetime.datetime.strptime(request.args.get('initialdate'), "%Y%m%d").date()
 	finaldate = initialdate - datetime.timedelta(3)
-	#retail = request.args['retail']
 	conn = mariaDBConnection()
 	cursor = conn.cursor()
 	cursor.execute(
@@ -112,9 +104,8 @@ def dailydata():
 			SELECT *
 			FROM movimiento_api_rest
 			WHERE fecha BETWEEN ? AND ?
-			LIMIT 500
 			""",
-			(finaldate, initialdate)
+			(str(finaldate), initialdate)
 	)
 
 	row_headers=[x[0] for x in cursor.description]
@@ -163,9 +154,9 @@ def monthlydata():
 			SELECT *
 			FROM movimiento_api_rest
 			WHERE fecha BETWEEN ? AND ?
-			LIMIT 500
+			Limit 300
 			""",
-			(finaldate, initialdate)
+			(str(finaldate), initialdate)
 	)
 
 	row_headers=[x[0] for x in cursor.description]
@@ -216,7 +207,6 @@ def filter():
 			FROM movimiento_api_rest
 			WHERE fecha BETWEEN ? AND ?
 			AND s_cadena = ? AND s_comuna = ? AND i_marca = ? AND s_ciudad = ?
-			LIMIT 500
 			""",
 			(initialdate, finaldate, retail, comuna, marca, ciudad)
 	)
@@ -268,7 +258,6 @@ def filtercadena():
 			FROM movimiento_api_rest
 			WHERE fecha BETWEEN ? AND ?
 			AND s_cadena = ?
-			LIMIT 500
 			""",
 			(initialdate, finaldate, retail)
 	)
@@ -320,7 +309,6 @@ def filtermarca():
 			FROM movimiento_api_rest
 			WHERE fecha BETWEEN ? AND ?
 			AND s_marca = ?
-			LIMIT 500
 			""",
 			(initialdate, finaldate, marca)
 	)
@@ -372,7 +360,57 @@ def filterciudad():
 			FROM movimiento_api_rest
 			WHERE fecha BETWEEN ? AND ?
 			AND s_ciudad = ?
-			LIMIT 500
+			""",
+			(initialdate, finaldate, ciudad)
+	)
+
+	row_headers=[x[0] for x in cursor.description]
+	cursor = cursor.fetchall()
+
+	json_data = []
+	json_dict = {}
+	metadata_section = []
+	total_venta_unidades = 0
+	total_venta_valor = 0
+
+	for result in cursor:
+		json_data.append(dict(zip(row_headers,result)))
+
+	for i in json_data:
+		total_venta_unidades += int(i['venta_unidades'])
+		total_venta_valor += int(i['venta_valor'])
+
+	cursorb = conn.cursor()
+	cursorb.execute("Select * from flags")
+	flag = cursorb.fetchall()[0][0]
+
+	metadata_section.append({
+		'preproceso': flag,
+		'cantidad de registros': len(json_data),
+		'total_venta_unidades': total_venta_unidades,
+		'total_venta_valor': total_venta_valor
+	})
+
+	json_dict['message']=200	
+	json_dict['data']=json_data
+	json_dict['metadata_section']=metadata_section	
+
+	return json_dict, 200
+
+@app.route('/api/v1/filtercomuna',  methods=['GET'])
+@jwt_required()
+def filtercomuna():
+	initialdate = datetime.datetime.strptime(request.args.get('initialdate'), "%Y%m%d").date()
+	finaldate = datetime.datetime.strptime(request.args.get('finaldate'), "%Y%m%d").date()
+	ciudad = request.args['ciudad']
+	conn = mariaDBConnection()
+	cursor = conn.cursor()
+	cursor.execute(
+			"""
+			SELECT *
+			FROM movimiento_api_rest
+			WHERE fecha BETWEEN ? AND ?
+			AND s_ciudad = ?
 			""",
 			(initialdate, finaldate, ciudad)
 	)
@@ -412,96 +450,107 @@ def filterciudad():
 
 @app.route('/api/v1/populate', methods=['GET', 'POST'])
 def populate():
-	initialdate = datetime.datetime.strptime(request.args.get('initialdate'), "%Y%m%d").date()
-	finaldate = datetime.datetime.strptime(request.args.get('finaldate'), "%Y%m%d").date()
-	retail = request.args['retail']
-	distribuidor = request.args['distribuidor']
-	conn1 = mariaDBConnection()
-	conn = mariaDBConnectionII()
-	cursor = conn.cursor()
+	initialdate = datetime.date.today()
+	finaldate = initialdate - datetime.timedelta(5)
+	retailers = ['CENCOSUD', 'SMU', 'WALMART', 'TOTTUS']
+	for retailer in retailers:
+		conn = mariaDBConnectionII()
+		cursor = conn.cursor()
+		i_distribuidor = 'CAPEL'
 
-	cursor.execute(
-		"""
-		INSERT INTO `b2b-api`.movimiento_api_rest (
-		fecha
-		, s_cadena
-		, s_cod_local
-		, cod_item
-		, i_ean
-		, i_distribuidor
-		, s_comuna
-		, s_bandera
-		, s_canal
-		, s_rut_cadena
-		, s_nombre_sala
-		, s_descripcion_cadena
-		, s_rut_supermercado
-		, s_direccion
-		, s_ciudad
-		, i_marca
-		, i_item
-		, venta_unidades
-		, venta_valor
-		, iva
+		cursor.execute(
+			"""
+			INSERT INTO `b2b-api`.movimiento_api_rest (
+			fecha
+			, s_cadena
+			, s_cod_local
+			, cod_item
+			, i_ean
+			, i_distribuidor
+			, s_comuna
+			, s_bandera
+			, s_canal
+			, s_rut_cadena
+			, s_nombre_sala
+			, s_descripcion_cadena
+			, s_rut_supermercado
+			, s_direccion
+			, s_ciudad
+			, i_marca
+			, i_item
+			, venta_unidades
+			, venta_valor
+			, iva
+			)
+			(
+			SELECT
+			fecha
+			, s_cadena
+			, s_cod_local
+			, cod_item
+			, i_ean
+			, i_distribuidor
+			, s_comuna
+			, s_bandera
+			, s_canal
+			, s_rut_cadena
+			, s_nombre_sala
+			, s_descripcion_cadena
+			, s_rut_supermercado
+			, s_direccion
+			, s_ciudad
+			, i_marca
+			, i_item
+			, SUM(venta_unidades) unidades
+			, SUM(venta_valor) valor
+			, SUM(venta_valor) * 0.19 AS 'iva'
+			FROM `b2b-andina`.movimiento
+			INNER JOIN `b2b-andina`.store_master ON s_cadena = retail AND s_cod_local = cod_local
+			INNER JOIN `b2b-andina`.item_master ON i_ean = ean
+			WHERE fecha BETWEEN ? AND ?
+			AND s_cadena = ?
+			AND i_distribuidor = ?
+			GROUP BY
+			fecha
+			, s_cadena
+			, s_cod_local
+			, cod_item
+			, i_ean
+			, i_distribuidor
+			, s_comuna
+			, s_bandera
+			, s_canal
+			, s_rut_cadena
+			, s_nombre_sala
+			, s_descripcion_cadena
+			, s_rut_supermercado
+			, s_direccion
+			, s_ciudad
+			, i_marca
+			, i_item
+			)	
+			""",
+			(str(finaldate), str(initialdate), retailer, i_distribuidor)
 		)
-		(
-		SELECT
-		fecha
-		, s_cadena
-		, s_cod_local
-		, cod_item
-		, i_ean
-		, i_distribuidor
-		, s_comuna
-		, s_bandera
-		, s_canal
-		, s_rut_cadena
-		, s_nombre_sala
-		, s_descripcion_cadena
-		, s_rut_supermercado
-		, s_direccion
-		, s_ciudad
-		, i_marca
-		, i_item
-		, SUM(venta_unidades) unidades
-		, SUM(venta_valor) valor
-		, SUM(venta_valor) * 0.19 AS 'iva'
-		FROM `b2b-andina`.movimiento
-		INNER JOIN `b2b-andina`.store_master ON s_cadena = retail AND s_cod_local = cod_local
-		INNER JOIN `b2b-andina`.item_master ON i_ean = ean
-		WHERE fecha BETWEEN ? AND ?
-		AND s_cadena = ?
-		AND i_distribuidor = ?
-		GROUP BY
-		fecha
-		, s_cadena
-		, s_cod_local
-		, cod_item
-		, i_ean
-		, i_distribuidor
-		, s_comuna
-		, s_bandera
-		, s_canal
-		, s_rut_cadena
-		, s_nombre_sala
-		, s_descripcion_cadena
-		, s_rut_supermercado
-		, s_direccion
-		, s_ciudad
-		, i_marca
-		, i_item
-		)	
-		""",
-		(initialdate, finaldate, retail, distribuidor)
-	)
-	conn.commit()
-	
-	json_dict = {}
-	json_dict['Message']='Succesfull!!'
-	json_dict['RowCount']= cursor.rowcount 
+		conn.commit()
+		rows = cursor.rowcount
 
-	return json_dict,200 
+		json_dict = {}
+		json_dict['Message'] = 'Succesfull!!'
+		json_dict['RowCount'] = rows
+		json_dict['ExecutionDate'] = initialdate
+		json_dict['StartingDate'] = finaldate
 
+		return json_dict, 200 
+
+
+@app.route('/api/v1/docs', methods=['GET'])
+def get_docs():
+    print('Documentación interactiva de APIs!')
+    # url: http://127.0.0.1:5000/api/docs
+    return render_template('swaggerui.html')
  
+
 if __name__ == '__main__':	
 	app.run(host="0.0.0.0", port=80, debug=True)
+

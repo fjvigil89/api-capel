@@ -7,4 +7,7 @@ mariadb
 pymongo
 pymongo[srv]
 bcrypt
+flask-swagger
+jinja2
 PyJWT
+
