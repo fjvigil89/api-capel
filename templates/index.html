@@ -1,0 +1,52 @@
+<!-- HTML for static distribution bundle build -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bienvenido</title>
+    <!--<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/swagger-ui.css') }}">-->
+    <!--<link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon-32x32.png') }}" sizes="32x32"/>-->
+    <!--<link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon-16x16.png') }}" sizes="16x16"/>-->
+    <style type="text/css">
+        html {
+            box-sizing: border-box;
+            overflow: -moz-scrollbars-vertical;
+            overflow-y: scroll;
+        }
+
+        *,
+        *:before,
+        *:after {
+            box-sizing: inherit;
+        }
+
+        body {
+            margin: 0;
+            background: #fafafa;
+        }
+
+        ul .li{
+            color: blueviolet;
+        }
+    </style>
+</head>
+    <h3>Bienvenido api capel.</h3>
+    <h4>Listado de endpoints</h4>
+    <ul>
+        <li>/api/v1/login</li>
+        <li>/api/v1/data?initialdate=yyyymmdd&finaldate=yyyymmdd</li>
+        <li>/api/v1/dailydata?initialdate=yyyymmdd</li>
+        <li>/api/v1/dailydata?initialdate=yyyymmdd</li>
+        <li>/api/v1/monthlydata?initialdate=yyyymmdd</li>
+        <li>/api/v1/monthlydata?initialdate=yyyymmdd</li>
+        <li>/api/v1/filtercadena?initialdate=yyyymmdd&finaldate=yyyymmdd&retail=$retail</li>    
+        <li>/api/v1/filtermarca?initialdate=yyyymmdd&finaldate=yyyymmdd&marca=$marca</li>
+        <li>/api/v1/filtermarca?initialdate=yyyymmdd&finaldate=yyyymmdd&ciudad=$ciudad</li>
+        <li>/api/v1/filtermarca?initialdate=yyyymmdd&finaldate=yyyymmdd&comuna=$comuna</li>
+        <li>/api/v1/populate</li>
+        <li>/api/v1/docs</li>
+    </ul>
+
+<body>
+</body>
+</html>

@@ -23,6 +23,10 @@ app.config['JWT_TOKEN_LOCATION'] = ['headers', 'query_string']
 app.config['JWT_SECRET_KEY'] = 'f8de2f7257f913eecfa9aae8a3c7750e'
 #app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(hours=23) # define the life span of the token
 
+@app.route('/')
+def home():
+	return render_template('index.heml')
+
 @app.route('/api/v1/login', methods=['POST'])
 def login():
 
