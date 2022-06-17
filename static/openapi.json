@@ -1,66 +1,249 @@
 
-openapi: "3.0.3"
-info:
-    version: "1.0.0"
-    title: "CADEM API-B2B"
-    description: "Microservicios para el Cálculo Venta Volumen y para el Cálculo DOH - INSTOCK"
-    termsOfService: "http://www.cademsmart.cl/terms/"
-    contact:
-        name: "José Ramón Vidal"
-        email: "jramonholy@gmail.com"
-    license:
-        name: "Apache 2.0"
-        url: "https://www.apache.org/licenses/LICENSE-2.0.html"
-paths:
-    /api/items:
-        get:
-            tags:
-                - "Items (Movimientos)"
-            summary: "Items de la tabla maestra"
-            description: "Devuelve todos los items/movimientos de la tabla maestra"
-            operationId: getItems
-            parameters: [ ]
-            responses:
-                '200':
-                    description: "Query ejecutada con exito!"
-                    content:
-                        application/json:
-                            schema:
-                                type: array
-                                items:
-                                    $ref: '#/components/schemas/Items'
-                '404':
-                    description: "Items not found"
-                    content:
-                        application/json:
-                            schema:
-                                type: object
-                                properties:
-                                    message:
-                                        type: string
-                                        example: "Items no encontrado"
-components:
-    schemas:
-        Items:
-            type: object
-            properties:
-                i_ean:
-                    type: string
-                i_item:
-                    type: string
-                    example: "Item Stock"
-                i_factor_volumen:
-                    type: number
-                fecha:
-                    type: string
-                    format: "date"
-                venta_unidades:
-                    type: number
-                venta_volumen:
-                    type: number
-                v_venta_volumen:
-                    type: number
+{
+"openapi": "3.0.3",
+"info": {
+    "version":"1.0.0",
+    "title": "CAPEL API-B2B",
+    "description": "Microservicios para la gestión de datos relacionados con retailers y distribuidores",
+    "contact":{
+        "name": "Vladimir Reyes La O",
+        "email": "vladimir.reyess@gmail.com"
+    },
+    "license":{
+        "name": "Apache 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
+    }       
+},
+"paths":{
+    "/api/v1/login": {
+        "post": {
+            "tags": ["autenticación, seguridad"]
+        },
+        "summary": "Login y autenticación de usuarios. Creacción de token de accesos",
+        "description": "Realiza la autenticación de usuarios, la creación de tokens de acceso y su gestión",
+        "operationId": "login",
+        "parameters": [],
+        "responses":{
+            "200":{
+                "description": "OK",
+                "content":{
+                        "application/json":{
+                            "schema":{
+                                "type": "token"
+                            }
+                        }
+                    }
+                },
+            "401":{
+                "description": "Nombre de usuario o contraseña incorrectos",
+                "content":{
+                        "application/json":{
+                            "schema": {
+                                "type": "object",
+                                "properties":{
+                                    "message": {
+                                        "type": "string",
+                                        "example": "Nombre de usuario o contraseña incorrectos"
+                                    }
 
-www.apache.org (https://www.apache.org/licenses/LICENSE-2.0.html)
-Apache License, Version 2.0
-Home page of The Apache Software Foundation
+                                }
+                            }
+
+                        }
+                    }
+                }
+            
+        }
+    },
+    "/api/v1/data": {
+        "get": {
+            "tags": ["query", "data"]
+        },
+        "summary": "Devuelve resultados enmarcados en un rango de fecha",
+        "description": "Devuelve resultados enmarcados en un rango de fecha",
+        "operationId": "data",
+        "parameters": [],
+        "responses":{
+            "200":{
+                "description": "OK",
+                "content":{
+                        "application/json":{
+                            "schema":{
+                                "type": "json"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "/api/v1/dailydata": {
+        "post": {
+            "tags": ["query", "data"]
+        },
+        "summary": "Devuelve resultados enmarcados en un rango de fecha",
+        "description": "Devuelve resultados enmarcados en un rango de fecha equivalente a 3 días anteriores dada fecha de inicio",
+        "operationId": "dailydata",
+        "parameters": [],
+        "responses":{
+            "200":{
+                "description": "OK",
+                "content":{
+                        "application/json":{
+                            "schema":{
+                                "type": "json"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "/api/v1/monthlydata": {
+        "post": {
+            "tags": ["query", "data"]
+        },
+        "summary": "Devuelve resultados enmarcados en un rango de fecha",
+        "description": "Devuelve resultados enmarcados en un rango de fecha equivalente a 30 días anteriores dada fecha de inicio",
+        "operationId": "dailydata",
+        "parameters": [],
+        "responses":{
+            "200":{
+                "description": "OK",
+                "content":{
+                        "application/json":{
+                            "schema":{
+                                "type": "json"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "/api/v1/filter": {
+        "post": {
+            "tags": ["query", "data"]
+        },
+        "summary": "Devuelve resultados enmarcados en un rango de fecha",
+        "description": "Devuelve el conjunto de intercepción de datos para los parámetros fecha inicial, fecha final, retailer, comuna, marca, ciudad",
+        "operationId": "filter",
+        "parameters": [],
+        "responses":{
+            "200":{
+                "description": "OK",
+                "content":{
+                        "application/json":{
+                            "schema":{
+                                "type": "json"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "/api/v1/filtercadena": {
+        "post": {
+            "tags": ["query", "data"]
+        },
+        "summary": "Devuelve resultados enmarcados en un rango de fecha",
+        "description": "evuelve resultados enmarcados en un rango de fecha. Agrupados por retailers",
+        "operationId": "filtercadena",
+        "parameters": [],
+        "responses":{
+            "200":{
+                "description": "OK",
+                "content":{
+                        "application/json":{
+                            "schema":{
+                                "type": "json"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "/api/v1/filtermarca": {
+        "post": {
+            "tags": ["query", "data"]
+        },
+        "summary": "Devuelve resultados enmarcados en un rango de fecha",
+        "description": "Devuelve resultados enmarcados en un rango de fecha. Agrupados por marca",
+        "operationId": "filtermarca",
+        "parameters": [],
+        "responses":{
+            "200":{
+                "description": "OK",
+                "content":{
+                        "application/json":{
+                            "schema":{
+                                "type": "json"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "/api/v1/filterciudad": {
+        "post": {
+            "tags": ["query", "data"]
+        },
+        "summary": "Devuelve resultados enmarcados en un rango de fecha",
+        "description": "Devuelve resultados enmarcados en un rango de fecha. Agrupados por ciudad",
+        "operationId": "filterciudad",
+        "parameters": [],
+        "responses":{
+            "200":{
+                "description": "OK",
+                "content":{
+                        "application/json":{
+                            "schema":{
+                                "type": "json"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "/api/v1/filtercomuna": {
+        "post": {
+            "tags": ["query", "data"]
+        },
+        "summary": "Devuelve resultados enmarcados en un rango de fecha",
+        "description": "Devuelve resultados enmarcados en un rango de fecha. Agrupados por comuna",
+        "operationId": "filtercomuna",
+        "parameters": [],
+        "responses":{
+            "200":{
+                "description": "OK",
+                "content":{
+                        "application/json":{
+                            "schema":{
+                                "type": "json"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "/api/v1/populate": {
+        "post": {
+            "tags": ["query", "data"]
+        },
+        "summary": "Devuelve resultados enmarcados en un rango de fecha",
+        "description": "Inserta datos de manera periódica",
+        "operationId": "populate",
+        "parameters": [],
+        "responses":{
+            "200":{
+                "description": "OK",
+                "content":{
+                        "application/json":{
+                            "schema":{
+                                "type": "json"
+                            }
+                        }
+                    }
+                }
+            }
+        }             
+    }
+}   
+

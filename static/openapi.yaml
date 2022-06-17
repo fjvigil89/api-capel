@@ -1,0 +1,317 @@
+openapi: 3.0.0
+info:
+    version: "1.0.0"
+    title: "CAPEL API-B2B"
+    description: "Microservicios para la gestión de datos relacionados con retailers y distribuidores"
+    contact:
+        name: "Vladimir Reyes La O"
+        email: "vladimir.reyess@gmail.com"
+    license:
+        name: "Apache 2.0"
+        url: "https://www.apache.org/licenses/LICENSE-2.0.html"
+paths:
+    /api/v1/login:
+        post:
+            tags:
+                - "autenticación, seguridad"
+            summary: "Login y autenticación de usuarios. Creacción de token de accesos"
+            description: "Realiza la autenticación de usuarios, la creación de tokens de acceso y su gestión"
+            operationId: login
+            parameters:
+                - name: username
+                  in: query
+                  description: nombre de usuario
+                  schema:
+                  type: string
+                - name: password
+                  in: query
+                  description: nombre de usuario
+                  schema:
+                  type: string
+            responses:
+                '200':
+                    description: "OK"
+                    content:
+                        application/json:
+                            schema:
+                                type: token
+                '401':
+                    description: "Nombre de usuario o contraseña incorrectos"
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    message:
+                                        type: string
+                                        example: "Nombre de usuario o contraseña incorrectos"
+    
+    /api/v1/data:
+    get:
+        tags:
+            - "query, data"
+        summary: "Devuelve resultados enmarcados en un rango de fecha"
+        description: "Devuelve resultados enmarcados en un rango de fecha"
+        operationId: data
+        parameters:
+            - name: fecha inicial
+              in: query
+              description: fecha de inicio. yyyymmdd
+              schema:
+              type: string
+            - name: fecha final
+              in: query
+              description: fecha final yyyymmdd
+              schema:
+              type: string
+        responses:
+            '200':
+                description: "OK"
+                content:
+                    application/json:
+                        schema:
+                            type: json
+
+    /api/v1/dailydata:
+    get:
+        tags:
+            - "query, data"
+        summary: "Devuelve resultados enmarcados en un rango de fecha"
+        description: "Devuelve resultados enmarcados en un rango de fecha equivalente a 3 días anteriores dada fecha de inicio"
+        operationId: data
+        parameters:
+            - name: fecha inicial
+              in: query
+              description: fecha de inicio. yyyymmdd
+              schema:
+              type: string
+        responses:
+            '200':
+                description: "OK"
+                content:
+                    application/json:
+                        schema:
+                            type: json
+                        
+    /api/v1/monthlydata:
+    get:
+        tags:
+            - "query, data"
+        summary: "Devuelve resultados enmarcados en un rango de fecha"
+        description: "Devuelve resultados enmarcados en un rango de fecha equivalente a 30 días anteriores dada fecha de inicio"
+        operationId: data
+        parameters:
+            - name: fecha inicial
+              in: query
+              description: fecha de inicio. yyyymmdd
+              schema:
+              type: string
+        responses:
+            '200':
+                description: "OK"
+                content:
+                    application/json:
+                        schema:
+                            type: json
+
+    /api/v1/filter:
+    get:
+        tags:
+            - "query, data"
+        summary: "Devuelve resultados enmarcados en un rango de fecha"
+        description: "Devuelve el conjunto de intercepción de datos para los parámetros fecha inicial, fecha final, retailer, comuna, marca, ciudad"
+        operationId: data
+        parameters:
+            - name: fecha inicial
+              in: query
+              description: fecha de inicio. yyyymmdd
+              schema:
+              type: string
+            - name: fecha final
+              in: query
+              description: fecha final yyyymmdd
+              schema:
+              type: string
+            - name: retail
+              in: query
+              description: nombre de retail
+              schema:
+              type: string
+            - name: comuna
+              in: query
+              description: nombre de comuna
+              schema:
+              type: string
+            - name: marca
+              in: query
+              description: nombre de marca
+              schema:
+              type: string
+            - name: ciudad
+              in: query
+              description: nombre de ciudad
+              schema:
+              type: string
+
+        responses:
+            '200':
+                description: "OK"
+                content:
+                    application/json:
+                        schema:
+                            type: json
+
+    /api/v1/filtercadena:
+    get:
+        tags:
+            - "query, data"
+        summary: "Devuelve resultados enmarcados en un rango de fecha. Agrupados por retailers"
+        description: "Devuelve resultados enmarcados en un rango de fecha. Agrupados por retailers"
+        operationId: data
+        parameters:
+            - name: fecha inicial
+              in: query
+              description: fecha de inicio. yyyymmdd
+              schema:
+              type: string
+            - name: fecha final
+              in: query
+              description: fecha final yyyymmdd
+              schema:
+              type: string
+            - name: cadena
+              in: query
+              description: nombre de cadena
+              schema:
+              type: string
+        responses:
+            '200':
+                description: "OK"
+                content:
+                    application/json:
+                        schema:
+                            type: json
+
+    /api/v1/filtermarca:
+    get:
+        tags:
+            - "query, data"
+        summary: "Devuelve resultados enmarcados en un rango de fecha. Agrupados por marca"
+        description: "Devuelve resultados enmarcados en un rango de fecha. Agrupados por marca"
+        operationId: data
+        parameters:
+            - name: fecha inicial
+              in: query
+              description: fecha de inicio. yyyymmdd
+              schema:
+              type: string
+            - name: fecha final
+              in: query
+              description: fecha final yyyymmdd
+              schema:
+              type: string
+            - name: marca
+              in: query
+              description: nombre de marca
+              schema:
+              type: string
+        responses:
+            '200':
+                description: "OK"
+                content:
+                    application/json:
+                        schema:
+                            type: json
+
+    /api/v1/filterciudad:
+    get:
+        tags:
+            - "query, data"
+        summary: "Devuelve resultados enmarcados en un rango de fecha. Agrupados por ciudad"
+        description: "Devuelve resultados enmarcados en un rango de fecha. Agrupados por ciudad"
+        operationId: data
+        parameters:
+            - name: fecha inicial
+              in: query
+              description: fecha de inicio. yyyymmdd
+              schema:
+              type: string
+            - name: fecha final
+              in: query
+              description: fecha final yyyymmdd
+              schema:
+              type: string
+            - name: ciudad
+              in: query
+              description: nombre de ciudad
+              schema:
+              type: string
+        responses:
+            '200':
+                description: "OK"
+                content:
+                    application/json:
+                        schema:
+                            type: json
+
+    /api/v1/filtercomuna:
+    get:
+        tags:
+            - "query, data"
+        summary: "Devuelve resultados enmarcados en un rango de fecha. Agrupados por comuna"
+        description: "Devuelve resultados enmarcados en un rango de fecha. Agrupados por comuna"
+        operationId: data
+        parameters:
+            - name: fecha inicial
+              in: query
+              description: fecha de inicio. yyyymmdd
+              schema:
+              type: string
+            - name: fecha final
+              in: query
+              description: fecha final yyyymmdd
+              schema:
+              type: string
+            - name: ciudcomuna
+              in: query
+              description: nombre de comuna
+              schema:
+              type: string
+        
+        responses:
+            '200':
+                description: "OK"
+                content:
+                    application/json:
+                        schema:
+                            type: json
+
+    /api/v1/populate:
+    get:
+        tags:
+            - "query, data"
+        summary: "Inserta datos de manera periodica"
+        description: "Inserta datos de manera periodica"
+        operationId: data
+        parameters:
+            - name: fecha inicial
+              in: body
+              description: fecha de inicio. yyyymmdd
+              schema:
+              type: string
+            - name: fecha final
+              in: body
+              description: fecha final yyyymmdd
+              schema:
+              type: string
+        responses:
+            '200':
+                description: "OK"
+                content:
+                    application/json:
+                        schema:
+                            type: json
+
+www.apache.org (https://www.apache.org/licenses/LICENSE-2.0.html)
+Apache License, Version 2.0
+Home page of The Apache Software Foundation

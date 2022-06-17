@@ -1,6 +1,6 @@
 flask
 Flask-Cors==3.0.10
-jwt
+#jwt
 flask_jwt_extended
 flask-sqlalchemy
 datetime
