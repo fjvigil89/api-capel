@@ -8,7 +8,7 @@ import bcrypt
 from auth import mariaDBConnection, mariaDBConnectionII
 from flask_swagger import swagger
 #from flask_cors import CORS, cross_origin
-
+#from waitress import serve
 
 app = Flask(__name__)
 #CORS(app)
@@ -23,6 +23,7 @@ app.config['JWT_TOKEN_LOCATION'] = ['headers', 'query_string']
 app.config['JWT_SECRET_KEY'] = 'f8de2f7257f913eecfa9aae8a3c7750e'
 #app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(hours=23) # define the life span of the token
 
+<<<<<<< HEAD
 @app.route('/')
 def home():
 	return render_template('swaggerui.html')
@@ -33,6 +34,8 @@ def get_docs():
     # url: http://127.0.0.1:5000/api/docs
     return render_template('swaggerui.html') """
 
+=======
+>>>>>>> 7068466 (Fixed recomendations from client: date format, preproceso, metadata_section replaced, populate definition fixed. Ammended commit.)
 @app.route('/api/v1/login', methods=['POST'])
 def login():
 
@@ -71,7 +74,7 @@ def data():
 
 	json_data = []
 	json_dict = {}
-	metadata_section = []
+	metadata = []
 	total_venta_unidades = 0
 	total_venta_valor = 0
 
@@ -89,8 +92,8 @@ def data():
 	#for result in range(0,1):
 	#		print(cursorb.fetchall().index(0))
 
-	metadata_section.append({
-		'preproceso': flag,
+	metadata.append({
+		'reproceso': flag,
 		'cantidad de registros': len(json_data),
 		'total_venta_unidades': total_venta_unidades,
 		'total_venta_valor': total_venta_valor
@@ -98,7 +101,7 @@ def data():
 
 	json_dict['message']=200	
 	json_dict['data']=json_data
-	json_dict['metadata_section']=metadata_section	
+	json_dict['metadata']=metadata	
 
 	return json_dict, 200
 
@@ -123,7 +126,7 @@ def dailydata():
 
 	json_data = []
 	json_dict = {}
-	metadata_section = []
+	metadata = []
 	total_venta_unidades = 0
 	total_venta_valor = 0
 
@@ -133,13 +136,14 @@ def dailydata():
 	for i in json_data:
 		total_venta_unidades += int(i['venta_unidades'])
 		total_venta_valor += int(i['venta_valor'])
+		i['fecha'] = str(i['fecha'].strftime("%d-%m-%Y"))
 
 	cursorb = conn.cursor()
 	cursorb.execute("Select * from flags")
 	flag = cursorb.fetchall()[0][0]
 
-	metadata_section.append({
-		'preproceso': flag,
+	metadata.append({
+		'reproceso': flag,
 		'cantidad de registros': len(json_data),
 		'total_venta_unidades': total_venta_unidades,
 		'total_venta_valor': total_venta_valor
@@ -147,7 +151,7 @@ def dailydata():
 
 	json_dict['message']=200	
 	json_dict['data']=json_data
-	json_dict['metadata_section']=metadata_section	
+	json_dict['metadata']=metadata	
 
 	return json_dict, 200
 
@@ -174,7 +178,7 @@ def monthlydata():
 
 	json_data = []
 	json_dict = {}
-	metadata_section = []
+	metadata = []
 	total_venta_unidades = 0
 	total_venta_valor = 0
 
@@ -184,11 +188,10 @@ def monthlydata():
 	for i in json_data:
 		total_venta_unidades += int(i['venta_unidades'])
 		total_venta_valor += int(i['venta_valor'])
+		i['fecha'] = str(i['fecha'].strftime("%d-%m-%Y"))
 	
-	
-
-	metadata_section.append({
-		'preproceso': 'false',
+	metadata.append({
+		'reproceso': 'false',
 		'cantidad de registros': len(json_data),
 		'total_venta_unidades': total_venta_unidades,
 		'total_venta_valor': total_venta_valor
@@ -196,7 +199,7 @@ def monthlydata():
 
 	json_dict['message']=200	
 	json_dict['data']=json_data
-	json_dict['metadata_section']=metadata_section	
+	json_dict['metadata']=metadata	
 
 	return json_dict, 200
 
@@ -226,7 +229,7 @@ def filter():
 
 	json_data = []
 	json_dict = {}
-	metadata_section = []
+	metadata = []
 	total_venta_unidades = 0
 	total_venta_valor = 0
 
@@ -236,13 +239,14 @@ def filter():
 	for i in json_data:
 		total_venta_unidades += int(i['venta_unidades'])
 		total_venta_valor += int(i['venta_valor'])
+		i['fecha'] = str(i['fecha'].strftime("%d-%m-%Y"))
 	
 	cursorb = conn.cursor()
 	cursorb.execute("Select * from flags")
 	flag = cursorb.fetchall()[0][0]
 
-	metadata_section.append({
-		'preproceso': flag,
+	metadata.append({
+		'reproceso': flag,
 		'cantidad de registros': len(json_data),
 		'total_venta_unidades': total_venta_unidades,
 		'total_venta_valor': total_venta_valor
@@ -250,7 +254,7 @@ def filter():
 
 	json_dict['message']=200	
 	json_dict['data']=json_data
-	json_dict['metadata_section']=metadata_section	
+	json_dict['metadata']=metadata	
 
 	return json_dict, 200
 
@@ -277,7 +281,7 @@ def filtercadena():
 
 	json_data = []
 	json_dict = {}
-	metadata_section = []
+	metadata = []
 	total_venta_unidades = 0
 	total_venta_valor = 0
 
@@ -287,13 +291,14 @@ def filtercadena():
 	for i in json_data:
 		total_venta_unidades += int(i['venta_unidades'])
 		total_venta_valor += int(i['venta_valor'])
+		i['fecha'] = str(i['fecha'].strftime("%d-%m-%Y"))
 
 	cursorb = conn.cursor()
 	cursorb.execute("Select * from flags")
 	flag = cursorb.fetchall()[0][0]
 
-	metadata_section.append({
-		'preproceso': flag,
+	metadata.append({
+		'reproceso': flag,
 		'cantidad de registros': len(json_data),
 		'total_venta_unidades': total_venta_unidades,
 		'total_venta_valor': total_venta_valor
@@ -301,7 +306,7 @@ def filtercadena():
 
 	json_dict['message']=200	
 	json_dict['data']=json_data
-	json_dict['metadata_section']=metadata_section	
+	json_dict['metadata']=metadata	
 
 	return json_dict, 200
 
@@ -328,7 +333,7 @@ def filtermarca():
 
 	json_data = []
 	json_dict = {}
-	metadata_section = []
+	metadata = []
 	total_venta_unidades = 0
 	total_venta_valor = 0
 
@@ -338,13 +343,14 @@ def filtermarca():
 	for i in json_data:
 		total_venta_unidades += int(i['venta_unidades'])
 		total_venta_valor += int(i['venta_valor'])
+		i['fecha'] = str(i['fecha'].strftime("%d-%m-%Y"))
 
 	cursorb = conn.cursor()
 	cursorb.execute("Select * from flags")
 	flag = cursorb.fetchall()[0][0]
 
-	metadata_section.append({
-		'preproceso': flag,
+	metadata.append({
+		'reproceso': flag,
 		'cantidad de registros': len(json_data),
 		'total_venta_unidades': total_venta_unidades,
 		'total_venta_valor': total_venta_valor
@@ -352,7 +358,7 @@ def filtermarca():
 
 	json_dict['message']=200	
 	json_dict['data']=json_data
-	json_dict['metadata_section']=metadata_section	
+	json_dict['metadata']=metadata	
 
 	return json_dict, 200
 
@@ -379,7 +385,7 @@ def filterciudad():
 
 	json_data = []
 	json_dict = {}
-	metadata_section = []
+	metadata = []
 	total_venta_unidades = 0
 	total_venta_valor = 0
 
@@ -389,13 +395,14 @@ def filterciudad():
 	for i in json_data:
 		total_venta_unidades += int(i['venta_unidades'])
 		total_venta_valor += int(i['venta_valor'])
+		i['fecha'] = str(i['fecha'].strftime("%d-%m-%Y"))
 
 	cursorb = conn.cursor()
 	cursorb.execute("Select * from flags")
 	flag = cursorb.fetchall()[0][0]
 
-	metadata_section.append({
-		'preproceso': flag,
+	metadata.append({
+		'reproceso': flag,
 		'cantidad de registros': len(json_data),
 		'total_venta_unidades': total_venta_unidades,
 		'total_venta_valor': total_venta_valor
@@ -403,7 +410,7 @@ def filterciudad():
 
 	json_dict['message']=200	
 	json_dict['data']=json_data
-	json_dict['metadata_section']=metadata_section	
+	json_dict['metadata']=metadata	
 
 	return json_dict, 200
 
@@ -430,7 +437,7 @@ def filtercomuna():
 
 	json_data = []
 	json_dict = {}
-	metadata_section = []
+	metadata = []
 	total_venta_unidades = 0
 	total_venta_valor = 0
 
@@ -440,13 +447,14 @@ def filtercomuna():
 	for i in json_data:
 		total_venta_unidades += int(i['venta_unidades'])
 		total_venta_valor += int(i['venta_valor'])
+		i['fecha'] = str(i['fecha'].strftime("%d-%m-%Y"))
 
 	cursorb = conn.cursor()
 	cursorb.execute("Select * from flags")
 	flag = cursorb.fetchall()[0][0]
 
-	metadata_section.append({
-		'preproceso': flag,
+	metadata.append({
+		'reproceso': flag,
 		'cantidad de registros': len(json_data),
 		'total_venta_unidades': total_venta_unidades,
 		'total_venta_valor': total_venta_valor
@@ -454,17 +462,21 @@ def filtercomuna():
 
 	json_dict['message']=200	
 	json_dict['data']=json_data
-	json_dict['metadata_section']=metadata_section	
+	json_dict['metadata']=metadata	
 
 	return json_dict, 200
 
 @app.route('/api/v1/populate', methods=['GET', 'POST'])
 def populate():
-	initialdate = datetime.date.today()
-	finaldate = initialdate - datetime.timedelta(5)
+	finaldate = datetime.date.today()
 	retailers = ['CENCOSUD', 'SMU', 'WALMART', 'TOTTUS']
 	for retailer in retailers:
-		conn = mariaDBConnectionII()
+		initialdate = datetime.date.today()
+		conn = mariaDBConnection()
+		datecursor = conn.cursor()
+		datecursor.execute("""SELECT MAX(fecha), ? FROM `b2b-api`.movimiento_api_rest GROUP BY ?""", (retailer, retailer))
+		dateflag = datecursor.fetchall()[0][0]
+		initialdate = dateflag - datetime.timedelta(4)
 		cursor = conn.cursor()
 		i_distribuidor = 'CAPEL'
 
@@ -548,11 +560,22 @@ def populate():
 		json_dict = {}
 		json_dict['Message'] = 'Succesfull!!'
 		json_dict['RowCount'] = rows
-		json_dict['ExecutionDate'] = initialdate
-		json_dict['StartingDate'] = finaldate
 
 		return json_dict, 200 
 
 
+<<<<<<< HEAD
+=======
+@app.route('/api/v1/docs', methods=['GET'])
+def get_docs():
+    print('Documentación interactiva de APIs!')
+    # url: http://127.0.0.1:5000/api/docs
+    return render_template('swaggerui.html')
+ 
+>>>>>>> 7068466 (Fixed recomendations from client: date format, preproceso, metadata_section replaced, populate definition fixed. Ammended commit.)
 if __name__ == '__main__':	
+<<<<<<< HEAD
 	app.run(host="0.0.0.0", port=80, debug=True)
+=======
+	app.run(host="0.0.0.0", port=5000, debug=True)
+>>>>>>> 5219da2 (Fixed recomendations from client: date format, preproceso, metadata_section replaced, populate definition fixed. Ammended commit.)

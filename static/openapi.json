@@ -57,7 +57,7 @@
     },
     "/api/v1/data": {
         "get": {
-            "tags": ["query", "data"]
+            "tags": ["query"]
         },
         "summary": "Devuelve resultados enmarcados en un rango de fecha",
         "description": "Devuelve resultados enmarcados en un rango de fecha",
@@ -78,7 +78,7 @@
     },
     "/api/v1/dailydata": {
         "post": {
-            "tags": ["query", "data"]
+            "tags": ["query"]
         },
         "summary": "Devuelve resultados enmarcados en un rango de fecha",
         "description": "Devuelve resultados enmarcados en un rango de fecha equivalente a 3 días anteriores dada fecha de inicio",
@@ -99,7 +99,7 @@
     },
     "/api/v1/monthlydata": {
         "post": {
-            "tags": ["query", "data"]
+            "tags": ["query"]
         },
         "summary": "Devuelve resultados enmarcados en un rango de fecha",
         "description": "Devuelve resultados enmarcados en un rango de fecha equivalente a 30 días anteriores dada fecha de inicio",
@@ -120,7 +120,7 @@
     },
     "/api/v1/filter": {
         "post": {
-            "tags": ["query", "data"]
+            "tags": ["query"]
         },
         "summary": "Devuelve resultados enmarcados en un rango de fecha",
         "description": "Devuelve el conjunto de intercepción de datos para los parámetros fecha inicial, fecha final, retailer, comuna, marca, ciudad",
@@ -141,7 +141,7 @@
     },
     "/api/v1/filtercadena": {
         "post": {
-            "tags": ["query", "data"]
+            "tags": ["query"]
         },
         "summary": "Devuelve resultados enmarcados en un rango de fecha",
         "description": "evuelve resultados enmarcados en un rango de fecha. Agrupados por retailers",
@@ -162,7 +162,7 @@
     },
     "/api/v1/filtermarca": {
         "post": {
-            "tags": ["query", "data"]
+            "tags": ["query"]
         },
         "summary": "Devuelve resultados enmarcados en un rango de fecha",
         "description": "Devuelve resultados enmarcados en un rango de fecha. Agrupados por marca",
@@ -183,7 +183,7 @@
     },
     "/api/v1/filterciudad": {
         "post": {
-            "tags": ["query", "data"]
+            "tags": ["query"]
         },
         "summary": "Devuelve resultados enmarcados en un rango de fecha",
         "description": "Devuelve resultados enmarcados en un rango de fecha. Agrupados por ciudad",
@@ -204,7 +204,7 @@
     },
     "/api/v1/filtercomuna": {
         "post": {
-            "tags": ["query", "data"]
+            "tags": ["query"]
         },
         "summary": "Devuelve resultados enmarcados en un rango de fecha",
         "description": "Devuelve resultados enmarcados en un rango de fecha. Agrupados por comuna",
@@ -225,7 +225,7 @@
     },
     "/api/v1/populate": {
         "post": {
-            "tags": ["query", "data"]
+            "tags": ["query"]
         },
         "summary": "Devuelve resultados enmarcados en un rango de fecha",
         "description": "Inserta datos de manera periódica",
