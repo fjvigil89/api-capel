@@ -23,6 +23,7 @@
         body {
             margin: 0;
             background: #fafafa;
+            max-width: 960px;
         }
 
         ul .li{
@@ -44,7 +45,7 @@
         <li>/api/v1/filtermarca?initialdate=yyyymmdd&finaldate=yyyymmdd&ciudad=$ciudad</li>
         <li>/api/v1/filtermarca?initialdate=yyyymmdd&finaldate=yyyymmdd&comuna=$comuna</li>
         <li>/api/v1/populate</li>
-        <li>/api/v1/docs</li>
+        <li><a href={{ url_for('home  }}>/api/v1/docs</a></li>
     </ul>
 
 <body>
