@@ -1,4 +1,4 @@
 # api-capel
 Api for smartcadem entreprise
 
-## test
+<pip install -r requirenments.txt> 
