@@ -63,8 +63,6 @@ jobs:
         port: 22
         username: ${{ secrets.SERVER_USERNAME }}
         private_key: ${{ secrets.PRIVATE_KEY }}
-        scp_source: ./*
-        scp_target: ~/ 
         before_script: | 
           docker rm -f apicapel
           docker rmi -f fjvigil/api-capel
