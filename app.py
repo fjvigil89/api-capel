@@ -76,6 +76,7 @@ def data():
 	for i in json_data:
 		total_venta_unidades += int(i['venta_unidades'])
 		total_venta_valor += int(i['venta_valor'])
+		i['fecha'] = str(i['fecha'].strftime("%d-%m-%Y"))
 
 	cursorb = conn.cursor()
 	cursorb.execute("Select * from flags")
