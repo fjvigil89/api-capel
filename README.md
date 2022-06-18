@@ -38,11 +38,11 @@ MONGODBPASSWD = ""
 - /api/v1/filtermarca?initialdate=yyyymmdd&finaldate=yyyymmdd&ciudad=$ciudad
 - /api/v1/filtermarca?initialdate=yyyymmdd&finaldate=yyyymmdd&comuna=$comuna
 - /api/v1/populate
-- /api/v1/docs
 
 ### Tecnologías
 - Python 3.10
 - Flask
+
 
 
 
