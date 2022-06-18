@@ -15,7 +15,5 @@ ENV DB_PASS ""
 
 RUN pip install -r requirements.txt
 RUN apt update && apt install -y net-tools
-#EXPOSE 80
-EXPOSE 5000
-
+EXPOSE 80
 CMD ["python3","app.py"]

@@ -23,19 +23,11 @@ app.config['JWT_TOKEN_LOCATION'] = ['headers', 'query_string']
 app.config['JWT_SECRET_KEY'] = 'f8de2f7257f913eecfa9aae8a3c7750e'
 #app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(hours=23) # define the life span of the token
 
-<<<<<<< HEAD
 @app.route('/')
 def home():
 	return render_template('swaggerui.html')
-""" 
-@app.route('/api/v1/docs', methods=['GET'])
-def get_docs():
-    print('Documentación interactiva de APIs!')
-    # url: http://127.0.0.1:5000/api/docs
-    return render_template('swaggerui.html') """
 
-=======
->>>>>>> 7068466 (Fixed recomendations from client: date format, preproceso, metadata_section replaced, populate definition fixed. Ammended commit.)
+
 @app.route('/api/v1/login', methods=['POST'])
 def login():
 
@@ -466,7 +458,7 @@ def filtercomuna():
 
 	return json_dict, 200
 
-@app.route('/api/v1/populate', methods=['GET', 'POST'])
+@app.route('/api/v1/populate', methods=['GET'])
 def populate():
 	finaldate = datetime.date.today()
 	retailers = ['CENCOSUD', 'SMU', 'WALMART', 'TOTTUS']
@@ -563,19 +555,5 @@ def populate():
 
 		return json_dict, 200 
 
-
-<<<<<<< HEAD
-=======
-@app.route('/api/v1/docs', methods=['GET'])
-def get_docs():
-    print('Documentación interactiva de APIs!')
-    # url: http://127.0.0.1:5000/api/docs
-    return render_template('swaggerui.html')
- 
->>>>>>> 7068466 (Fixed recomendations from client: date format, preproceso, metadata_section replaced, populate definition fixed. Ammended commit.)
 if __name__ == '__main__':	
-<<<<<<< HEAD
 	app.run(host="0.0.0.0", port=80, debug=True)
-=======
-	app.run(host="0.0.0.0", port=5000, debug=True)
->>>>>>> 5219da2 (Fixed recomendations from client: date format, preproceso, metadata_section replaced, populate definition fixed. Ammended commit.)
