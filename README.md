@@ -26,22 +26,23 @@ MONGODBUSER = ""
 MONGODBPASSWD = ""
 ```
 ### EndPoints
--/api/v1/login
--/api/v1/data?initialdate=yyyymmdd&finaldate=yyyymmdd
--/api/v1/dailydata?initialdate=yyyymmdd
--/api/v1/dailydata?initialdate=yyyymmdd
--/api/v1/monthlydata?initialdate=yyyymmdd
--/api/v1/filtercadena?initialdate=yyyymmdd&finaldate=yyyymmdd&retail=$retail&comuna=$comuna&marca=$marca&ciudad=$ciudad
--/api/v1/filtercadena?initialdate=yyyymmdd&finaldate=yyyymmdd&retail=$retail
--/api/v1/filtermarca?initialdate=yyyymmdd&finaldate=yyyymmdd&marca=$marca
--/api/v1/filtermarca?initialdate=yyyymmdd&finaldate=yyyymmdd&ciudad=$ciudad
--/api/v1/filtermarca?initialdate=yyyymmdd&finaldate=yyyymmdd&comuna=$comuna
--/api/v1/populate
--/api/v1/docs
+
+- /api/v1/login
+- /api/v1/data?initialdate=yyyymmdd&finaldate=yyyymmdd
+- /api/v1/dailydata?initialdate=yyyymmdd
+- /api/v1/dailydata?initialdate=yyyymmdd
+- /api/v1/monthlydata?initialdate=yyyymmdd
+- /api/v1/filtercadena?initialdate=yyyymmdd&finaldate=yyyymmdd&retail=$retail&comuna=$comuna&marca=$marca&ciudad=$ciudad
+- /api/v1/filtercadena?initialdate=yyyymmdd&finaldate=yyyymmdd&retail=$retail
+- /api/v1/filtermarca?initialdate=yyyymmdd&finaldate=yyyymmdd&marca=$marca
+- /api/v1/filtermarca?initialdate=yyyymmdd&finaldate=yyyymmdd&ciudad=$ciudad
+- /api/v1/filtermarca?initialdate=yyyymmdd&finaldate=yyyymmdd&comuna=$comuna
+- /api/v1/populate
+- /api/v1/docs
 
 ### Tecnologías
--Python 3.10
--Flask
+- Python 3.10
+- Flask
 
 
 

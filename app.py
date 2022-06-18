@@ -8,7 +8,7 @@ import bcrypt
 from auth import mariaDBConnection, mariaDBConnectionII
 from flask_swagger import swagger
 #from flask_cors import CORS, cross_origin
-#from waitress import serve
+
 
 app = Flask(__name__)
 #CORS(app)
@@ -22,6 +22,16 @@ jwt = JWTManager(app) # initialize JWTManager
 app.config['JWT_TOKEN_LOCATION'] = ['headers', 'query_string']
 app.config['JWT_SECRET_KEY'] = 'f8de2f7257f913eecfa9aae8a3c7750e'
 #app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(hours=23) # define the life span of the token
+
+@app.route('/')
+def home():
+	return render_template('swaggerui.html')
+""" 
+@app.route('/api/v1/docs', methods=['GET'])
+def get_docs():
+    print('Documentación interactiva de APIs!')
+    # url: http://127.0.0.1:5000/api/docs
+    return render_template('swaggerui.html') """
 
 @app.route('/api/v1/login', methods=['POST'])
 def login():
@@ -544,21 +554,5 @@ def populate():
 		return json_dict, 200 
 
 
-@app.route('/api/v1/docs', methods=['GET'])
-def get_docs():
-    print('Documentación interactiva de APIs!')
-    # url: http://127.0.0.1:5000/api/docs
-    return render_template('swaggerui.html')
- 
-<<<<<<< HEAD
-if __name__ == '__main__':
-	app.run(debug=True)
-
-"""
-if __name__ == "__main__":
-    serve(app, host="0.0.0.0", port=80)
-"""
-=======
 if __name__ == '__main__':	
 	app.run(host="0.0.0.0", port=80, debug=True)
->>>>>>> b372a6b (Syncing master)
