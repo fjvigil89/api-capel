@@ -1,0 +1,13 @@
+flask
+Flask-Cors==3.0.10
+flask_jwt_extended
+datetime
+uuid
+mariadb
+pymongo
+pymongo[srv]
+bcrypt
+flask-swagger
+jinja2
+PyJWT
+
