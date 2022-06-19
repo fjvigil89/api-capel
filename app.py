@@ -42,61 +42,66 @@ def login():
 			app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(hours=user_from_db['duration_token_in_hours']) # define the life span of the token
 			return jsonify(access_token=access_token), 200
 
-	return jsonify({'msg': 'Nombre de usuario o contraseña incorrectos'}), 401
+	return jsonify({'msg': 'ACCESS_FAILURE'}), 401
 
 @app.route('/api/v1/data', methods=['GET'])
 @jwt_required()
 def data():
-	initialdate = datetime.datetime.strptime(request.args.get('initialdate'), "%Y%m%d").date()
-	finaldate = datetime.datetime.strptime(request.args.get('finaldate'), "%Y%m%d").date()
-	#retail = request.args['retail']
-	conn = mariaDBConnection()
-	cursor = conn.cursor()
-	cursor.execute(
-			"""
-			SELECT *
-			FROM movimiento_api_rest
-			WHERE fecha BETWEEN ? AND ?
-			""",
-			(initialdate, finaldate)
-	)
+	try:
+		initialdate = datetime.datetime.strptime(request.args.get('initialdate'), "%Y%m%d").date()
+		finaldate = datetime.datetime.strptime(request.args.get('finaldate'), "%Y%m%d").date()
+		#retail = request.args['retail']
+		conn = mariaDBConnection()
+		cursor = conn.cursor()
+		cursor.execute(
+				"""
+				SELECT *
+				FROM movimiento_api_rest
+				WHERE fecha BETWEEN ? AND ?
+				""",
+				(initialdate, finaldate)
+		)
 
-	row_headers=[x[0] for x in cursor.description]
-	cursor = cursor.fetchall()
+		row_headers=[x[0] for x in cursor.description]
+		cursor = cursor.fetchall()
 
-	json_data = []
-	json_dict = {}
-	metadata = []
-	total_venta_unidades = 0
-	total_venta_valor = 0
+		json_data = []
+		json_dict = {}
+		metadata = []
+		total_venta_unidades = 0
+		total_venta_valor = 0
 
-	for result in cursor:
-		json_data.append(dict(zip(row_headers,result)))
+		for result in cursor:
+			json_data.append(dict(zip(row_headers,result)))
 
-	for i in json_data:
-		total_venta_unidades += int(i['venta_unidades'])
-		total_venta_valor += int(i['venta_valor'])
-		i['fecha'] = str(i['fecha'].strftime("%d-%m-%Y"))
+		for i in json_data:
+			total_venta_unidades += int(i['venta_unidades'])
+			total_venta_valor += int(i['venta_valor'])
+			i['fecha'] = str(i['fecha'].strftime("%d-%m-%Y"))
 
-	cursorb = conn.cursor()
-	cursorb.execute("Select * from flags")
-	flag = cursorb.fetchall()[0][0]
+		cursorb = conn.cursor()
+		cursorb.execute("Select * from flags")
+		flag = cursorb.fetchall()[0][0]
 
-	#for result in range(0,1):
-	#		print(cursorb.fetchall().index(0))
+		#for result in range(0,1):
+		#		print(cursorb.fetchall().index(0))
 
-	metadata.append({
-		'reproceso': flag,
-		'cantidad de registros': len(json_data),
-		'total_venta_unidades': total_venta_unidades,
-		'total_venta_valor': total_venta_valor
-	})
+		metadata.append({
+			'reproceso': flag,
+			'cantidad de registros': len(json_data),
+			'total_venta_unidades': total_venta_unidades,
+			'total_venta_valor': total_venta_valor
+		})
 
-	json_dict['message']=200	
-	json_dict['data']=json_data
-	json_dict['metadata']=metadata	
+		json_dict['message']=200	
+		json_dict['data']=json_data
+		json_dict['metadata']=metadata	
 
-	return json_dict, 200
+		return json_dict, 200
+	except Exception as e:
+		print(e)
+
+	
 
 @app.route('/api/v1/dailydata', methods=['GET'])
 @jwt_required()
@@ -554,7 +559,7 @@ def populate():
 		json_dict['Message'] = 'Succesfull!!'
 		json_dict['RowCount'] = rows
 
-		return json_dict, 200 
+		return json_dict, 200
 
 if __name__ == '__main__':	
-	app.run(host="0.0.0.0", port=80, debug=True)
+	app.run(host="0.0.0.0", port=5000, debug=True)
