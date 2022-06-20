@@ -1,13 +1,13 @@
-from urllib import response
+
 from flask import Flask, jsonify, request, render_template, Response
 from werkzeug.security import generate_password_hash,check_password_hash
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required
+from flask_swagger import swagger
+from auth import mariaDBConnection, mariaDBConnectionII
 from pymongo import MongoClient
 import datetime
 import bcrypt
-#from utils import getAllItems, filterItems, filterComuna, filterMarca
-from auth import mariaDBConnection, mariaDBConnectionII
-from flask_swagger import swagger
+import sys
 #from flask_cors import CORS, cross_origin
 #from waitress import serve
 
@@ -23,7 +23,7 @@ jwt = JWTManager(app) # initialize JWTManager
 app.config['JWT_TOKEN_LOCATION'] = ['headers', 'query_string']
 app.config['JWT_SECRET_KEY'] = 'f8de2f7257f913eecfa9aae8a3c7750e'
 TRAP_BAD_REQUEST_ERRORS = True
-#app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(hours=23) # define the life span of the token
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(hours=23) # define the life span of the token
 
 @app.route('/')
 def home():
@@ -41,7 +41,7 @@ def login():
 
 		if decrpted_password:
 			access_token = create_access_token(identity=user_from_db['username']) # create jwt token
-			app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(hours=user_from_db['duration_token_in_hours']) # define the life span of the token
+			#app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(hours=user_from_db['duration_token_in_hours']) # define the life span of the token
 			return jsonify(access_token=access_token), 200
 
 	return jsonify({'msg': 'ACCESS_FAILURE'}), 401
@@ -49,72 +49,75 @@ def login():
 @app.route('/api/v1/data', methods=['GET'])
 @jwt_required()
 def data():
-	
-	initialdate = datetime.datetime.strptime(request.args.get('initialdate'), "%Y%m%d").date()
-	finaldate = datetime.datetime.strptime(request.args.get('finaldate'), "%Y%m%d").date()
-	'''
-	if initialdate == None or finaldate == None:
-		message = "ERR_FILTERS_EMPTY"
-		return jsonify(message), 400
-	elif initialdate > finaldate:
-		message = "ERR_DIFF_DATE"
-		return jsonify(message), 400
-	elif initialdate == '' and finaldate == '':
+	if request.args.get('initialdate') == None and request.args.get('finaldate') == None:
 		message = "ERR_DATES_NOT_DEFINED"
 		return jsonify(message), 400
-	elif not initialdate == datetime.datetime.strptime(initialdate, "%Y-%m-%d") or finaldate == datetime.datetime.strptime(finaldate, "%Y-%m-%d"):
+	elif request.args.get('initialdate') == None or request.args.get('finaldate') == None:
+		message = "ERR_FILTERS_EMPTY"
+		return jsonify(message), 400	
+	elif datetime.datetime.strptime(request.args.get('initialdate'), "%Y-%m-%d").date() > datetime.datetime.strptime(request.args.get('finaldate'), "%Y-%m-%d").date():
+		message = "ERR_DIFF_DATE"
+		return jsonify(message), 400
+	elif request.args.get('initialdate') != str(datetime.datetime.strptime(request.args.get('initialdate'), "%Y-%m-%d").date()) or request.args.get('finaldate') != str(datetime.datetime.strptime(request.args.get('finaldate'), "%Y-%m-%d").date()):
+		print(request.args.get('initialdate'))
+		print(datetime.datetime.strptime(request.args.get('initialdate'), "%Y-%m-%d").date())
+		print(request.args.get('finaldate'))
+		print(datetime.datetime.strptime(request.args.get('finaldate'), "%Y-%m-%d").date())
+
 		message = ("ERR_DATES_FORMAT")
 		return jsonify(message), 400
-	'''
-	
-	#retail = request.args['retail']
-	conn = mariaDBConnection()
-	cursor = conn.cursor()
-	cursor.execute(
-			"""
-			SELECT *
-			FROM movimiento_api_rest
-			WHERE fecha BETWEEN ? AND ?
-			""",
-			(initialdate, finaldate)
-	)
+	else:
+		initialdate = datetime.datetime.strptime(request.args.get('initialdate'), "%Y-%m-%d").date()
+		finaldate = datetime.datetime.strptime(request.args.get('finaldate'), "%Y-%m-%d").date()
+		conn = mariaDBConnection()
+		cursor = conn.cursor()
+		cursor.execute(
+				"""
+				SELECT *
+				FROM movimiento_api_rest
+				WHERE fecha BETWEEN ? AND ?
+				""",
+				(initialdate, finaldate)
+		)
 
-	row_headers=[x[0] for x in cursor.description]
-	cursor = cursor.fetchall()
+		row_headers=[x[0] for x in cursor.description]
+		cursor = cursor.fetchall()
 
-	json_data = []
-	json_dict = {}
-	metadata = []
-	total_venta_unidades = 0
-	total_venta_valor = 0
+		json_data = []
+		json_dict = {}
+		metadata = []
+		total_venta_unidades = 0
+		total_venta_valor = 0
 
-	for result in cursor:
-		json_data.append(dict(zip(row_headers,result)))
+		for result in cursor:
+			json_data.append(dict(zip(row_headers,result)))
 
-	for i in json_data:
-		total_venta_unidades += int(i['venta_unidades'])
-		total_venta_valor += int(i['venta_valor'])
-		i['fecha'] = str(i['fecha'].strftime("%d-%m-%Y"))
+		for i in json_data:
+			total_venta_unidades += int(i['venta_unidades'])
+			total_venta_valor += int(i['venta_valor'])
+			i['fecha'] = str(i['fecha'].strftime("%d-%m-%Y"))
 
-	cursorb = conn.cursor()
-	cursorb.execute("Select * from flags")
-	flag = cursorb.fetchall()[0][0]
+		cursorb = conn.cursor()
+		cursorb.execute("Select * from flags")
+		flag = cursorb.fetchall()[0][0]
 
-	#for result in range(0,1):
-	#		print(cursorb.fetchall().index(0))
+		#for result in range(0,1):
+		#		print(cursorb.fetchall().index(0))
 
-	metadata.append({
-		'reproceso': flag,
-		'cantidad de registros': len(json_data),
-		'total_venta_unidades': total_venta_unidades,
-		'total_venta_valor': total_venta_valor
-	})
+		metadata.append({
+			'reproceso': flag,
+			'cantidad de registros': len(json_data),
+			'total_venta_unidades': total_venta_unidades,
+			'total_venta_valor': total_venta_valor
+		})
 
-	json_dict['message']=200	
-	json_dict['data']=json_data
-	json_dict['metadata']=metadata	
+		json_dict['message']=200	
+		json_dict['data']=json_data
+		json_dict['metadata']=metadata	
 
-	return json_dict, 200
+		print(sys.getsizeof(json_dict))
+
+		return json_dict, 200
 
 @app.route('/api/v1/dailydata', methods=['GET'])
 @jwt_required()
@@ -129,7 +132,7 @@ def dailydata():
 			FROM movimiento_api_rest
 			WHERE fecha BETWEEN ? AND ?
 			""",
-			(str(finaldate), initialdate)
+			(str(finaldate), str(initialdate))
 	)
 
 	row_headers=[x[0] for x in cursor.description]
@@ -273,6 +276,7 @@ def filter():
 @jwt_required()
 def filtercadena():
 	initialdate = datetime.datetime.strptime(request.args.get('initialdate'), "%Y%m%d").date()
+	print(initialdate)
 	finaldate = datetime.datetime.strptime(request.args.get('finaldate'), "%Y%m%d").date()
 	retail = request.args['retail']
 	conn = mariaDBConnection()
@@ -284,7 +288,7 @@ def filtercadena():
 			WHERE fecha BETWEEN ? AND ?
 			AND s_cadena = ?
 			""",
-			(initialdate, finaldate, retail)
+			(str(initialdate), str(finaldate), retail)
 	)
 
 	row_headers=[x[0] for x in cursor.description]
@@ -482,12 +486,14 @@ def populate():
 	finaldate = datetime.date.today()
 	retailers = ['CENCOSUD', 'SMU', 'WALMART', 'TOTTUS']
 	for retailer in retailers:
-		initialdate = datetime.date.today()
-		conn = mariaDBConnection()
-		datecursor = conn.cursor()
-		datecursor.execute("""SELECT MAX(fecha), ? FROM `b2b-api`.movimiento_api_rest GROUP BY ?""", (retailer, retailer))
+		connbase = mariaDBConnectionII()
+		datecursor = connbase.cursor()
+		datecursor.execute("""SELECT MAX(fecha), ? FROM `b2b-andina`.movimiento GROUP BY ?""", (retailer, retailer))
 		dateflag = datecursor.fetchall()[0][0]
+		print(dateflag)
 		initialdate = dateflag - datetime.timedelta(4)
+		print(initialdate)
+		conn = mariaDBConnection()
 		cursor = conn.cursor()
 		i_distribuidor = 'CAPEL'
 
@@ -542,7 +548,7 @@ def populate():
 			INNER JOIN `b2b-andina`.item_master ON i_ean = ean
 			WHERE fecha BETWEEN ? AND ?
 			AND s_cadena = ?
-			AND i_distribuidor = ?
+			AND i_distribuidor = 'CAPEL'
 			GROUP BY
 			fecha
 			, s_cadena
@@ -563,7 +569,8 @@ def populate():
 			, i_item
 			)	
 			""",
-			(str(finaldate), str(initialdate), retailer, i_distribuidor)
+			#(str(finaldate), str(initialdate), retailer)
+			(str(initialdate), str(dateflag), retailer)
 		)
 		conn.commit()
 		rows = cursor.rowcount
@@ -575,4 +582,4 @@ def populate():
 		return jsonify(json_dict), 200
 
 if __name__ == '__main__':	
-	app.run(host="0.0.0.0", port=80, debug=True)
+	app.run(host="0.0.0.0", port=5000, debug=True)
