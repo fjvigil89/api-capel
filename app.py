@@ -50,25 +50,24 @@ def login():
 @jwt_required()
 def data():
 	if request.args.get('initialdate') == None and request.args.get('finaldate') == None:
-		message = "ERR_DATES_NOT_DEFINED"
-		return jsonify(message), 400
+		return jsonify({'error': 'ERR_DATES_NOT_DEFINED', 'message': 'En la petición no se está enviando la fecha.'}), 400
 	elif request.args.get('initialdate') == None or request.args.get('finaldate') == None:
 		message = "ERR_FILTERS_EMPTY"
-		return jsonify(message), 400	
-	elif datetime.datetime.strptime(request.args.get('initialdate'), "%Y-%m-%d").date() > datetime.datetime.strptime(request.args.get('finaldate'), "%Y-%m-%d").date():
+		return jsonify({'error': 'ERR_FILTERS_EMPTY', 'message': 'Uno o más de los filtros enviados en la petición están vacíos.'}), 400	
+	elif datetime.datetime.strptime(request.args.get('initialdate'), "%Y%m%d").date() > datetime.datetime.strptime(request.args.get('finaldate'), "%Y%m%d").date():
 		message = "ERR_DIFF_DATE"
-		return jsonify(message), 400
-	elif request.args.get('initialdate') != str(datetime.datetime.strptime(request.args.get('initialdate'), "%Y-%m-%d").date()) or request.args.get('finaldate') != str(datetime.datetime.strptime(request.args.get('finaldate'), "%Y-%m-%d").date()):
-		print(request.args.get('initialdate'))
-		print(datetime.datetime.strptime(request.args.get('initialdate'), "%Y-%m-%d").date())
-		print(request.args.get('finaldate'))
-		print(datetime.datetime.strptime(request.args.get('finaldate'), "%Y-%m-%d").date())
+		return jsonify({'error': 'ERR_DIFF_DATE', 'message': 'La fecha inicio es mayor a la fecha fin.'}), 400
+	#elif request.args.get('initialdate') != str(datetime.datetime.strptime(request.args.get('initialdate'), "%Y-%m-%d").date()) or request.args.get('finaldate') != str(datetime.datetime.strptime(request.args.get('finaldate'), "%Y-%m-%d").date()):
+		#print(request.args.get('initialdate'))
+		#print(datetime.datetime.strptime(request.args.get('initialdate'), "%Y-%m-%d").date())
+		#print(request.args.get('finaldate'))
+		#print(datetime.datetime.strptime(request.args.get('finaldate'), "%Y-%m-%d").date())
 
-		message = ("ERR_DATES_FORMAT")
-		return jsonify(message), 400
+		#message = ("ERR_DATES_FORMAT")
+		#return jsonify(message), 400
 	else:
-		initialdate = datetime.datetime.strptime(request.args.get('initialdate'), "%Y-%m-%d").date()
-		finaldate = datetime.datetime.strptime(request.args.get('finaldate'), "%Y-%m-%d").date()
+		initialdate = datetime.datetime.strptime(request.args.get('initialdate'), "%Y%m%d").date()
+		finaldate = datetime.datetime.strptime(request.args.get('finaldate'), "%Y%m%d").date()
 		conn = mariaDBConnection()
 		cursor = conn.cursor()
 		cursor.execute(
@@ -93,8 +92,14 @@ def data():
 			json_data.append(dict(zip(row_headers,result)))
 
 		for i in json_data:
-			total_venta_unidades += int(i['venta_unidades'])
-			total_venta_valor += int(i['venta_valor'])
+			if i['venta_unidades'] != None:
+				total_venta_unidades += int(i['venta_unidades'])
+			else:
+				continue
+			if i['venta_valor'] != 0:
+				total_venta_valor += int(i['venta_valor'])
+			else:
+				continue
 			i['fecha'] = str(i['fecha'].strftime("%d-%m-%Y"))
 
 		cursorb = conn.cursor()
@@ -148,8 +153,14 @@ def dailydata():
 		json_data.append(dict(zip(row_headers,result)))
 
 	for i in json_data:
-		total_venta_unidades += int(i['venta_unidades'])
-		total_venta_valor += int(i['venta_valor'])
+		if i['venta_unidades'] != None:
+			total_venta_unidades += int(i['venta_unidades'])
+		else:
+			continue
+		if i['venta_valor'] != 0:
+			total_venta_valor += int(i['venta_valor'])
+		else:
+			continue
 		i['fecha'] = str(i['fecha'].strftime("%d-%m-%Y"))
 
 	cursorb = conn.cursor()
@@ -200,8 +211,14 @@ def monthlydata():
 		json_data.append(dict(zip(row_headers,result)))
 
 	for i in json_data:
-		total_venta_unidades += int(i['venta_unidades'])
-		total_venta_valor += int(i['venta_valor'])
+		if i['venta_unidades'] != None:
+			total_venta_unidades += int(i['venta_unidades'])
+		else:
+			continue
+		if i['venta_valor'] != 0:
+			total_venta_valor += int(i['venta_valor'])
+		else:
+			continue
 		i['fecha'] = str(i['fecha'].strftime("%d-%m-%Y"))
 	
 	metadata.append({
@@ -251,8 +268,14 @@ def filter():
 		json_data.append(dict(zip(row_headers,result)))
 
 	for i in json_data:
-		total_venta_unidades += int(i['venta_unidades'])
-		total_venta_valor += int(i['venta_valor'])
+		if i['venta_unidades'] != None:
+			total_venta_unidades += int(i['venta_unidades'])
+		else:
+			continue
+		if i['venta_valor'] != 0:
+			total_venta_valor += int(i['venta_valor'])
+		else:
+			continue
 		i['fecha'] = str(i['fecha'].strftime("%d-%m-%Y"))
 	
 	cursorb = conn.cursor()
@@ -304,8 +327,14 @@ def filtercadena():
 		json_data.append(dict(zip(row_headers,result)))
 
 	for i in json_data:
-		total_venta_unidades += int(i['venta_unidades'])
-		total_venta_valor += int(i['venta_valor'])
+		if i['venta_unidades'] != None:
+			total_venta_unidades += int(i['venta_unidades'])
+		else:
+			continue
+		if i['venta_valor'] != 0:
+			total_venta_valor += int(i['venta_valor'])
+		else:
+			continue
 		i['fecha'] = str(i['fecha'].strftime("%d-%m-%Y"))
 
 	cursorb = conn.cursor()
@@ -356,8 +385,14 @@ def filtermarca():
 		json_data.append(dict(zip(row_headers,result)))
 
 	for i in json_data:
-		total_venta_unidades += int(i['venta_unidades'])
-		total_venta_valor += int(i['venta_valor'])
+		if i['venta_unidades'] != None:
+			total_venta_unidades += int(i['venta_unidades'])
+		else:
+			continue
+		if i['venta_valor'] != 0:
+			total_venta_valor += int(i['venta_valor'])
+		else:
+			continue
 		i['fecha'] = str(i['fecha'].strftime("%d-%m-%Y"))
 
 	cursorb = conn.cursor()
@@ -408,8 +443,14 @@ def filterciudad():
 		json_data.append(dict(zip(row_headers,result)))
 
 	for i in json_data:
-		total_venta_unidades += int(i['venta_unidades'])
-		total_venta_valor += int(i['venta_valor'])
+		if i['venta_unidades'] != None:
+			total_venta_unidades += int(i['venta_unidades'])
+		else:
+			continue
+		if i['venta_valor'] != 0:
+			total_venta_valor += int(i['venta_valor'])
+		else:
+			continue
 		i['fecha'] = str(i['fecha'].strftime("%d-%m-%Y"))
 
 	cursorb = conn.cursor()
@@ -460,8 +501,14 @@ def filtercomuna():
 		json_data.append(dict(zip(row_headers,result)))
 
 	for i in json_data:
-		total_venta_unidades += int(i['venta_unidades'])
-		total_venta_valor += int(i['venta_valor'])
+		if i['venta_unidades'] != None:
+			total_venta_unidades += int(i['venta_unidades'])
+		else:
+			continue
+		if i['venta_valor'] != 0:
+			total_venta_valor += int(i['venta_valor'])
+		else:
+			continue
 		i['fecha'] = str(i['fecha'].strftime("%d-%m-%Y"))
 
 	cursorb = conn.cursor()
@@ -582,4 +629,4 @@ def populate():
 		return jsonify(json_dict), 200
 
 if __name__ == '__main__':	
-	app.run(host="0.0.0.0", port=80, debug=True)
+	app.run(host="0.0.0.0", port=5000, debug=True)
