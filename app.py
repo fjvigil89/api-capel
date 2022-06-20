@@ -1,4 +1,5 @@
-from flask import Flask, jsonify, request, render_template
+from urllib import response
+from flask import Flask, jsonify, request, render_template, Response
 from werkzeug.security import generate_password_hash,check_password_hash
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required
 from pymongo import MongoClient
@@ -559,7 +560,7 @@ def populate():
 		json_dict['Message'] = 'Succesfull!!'
 		json_dict['RowCount'] = rows
 
-		return json_dict, 200
+		return jsonify(json_dict), 200
 
 if __name__ == '__main__':	
 	app.run(host="0.0.0.0", port=5000, debug=True)
