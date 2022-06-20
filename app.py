@@ -22,6 +22,7 @@ users_collection = db["users"]
 jwt = JWTManager(app) # initialize JWTManager
 app.config['JWT_TOKEN_LOCATION'] = ['headers', 'query_string']
 app.config['JWT_SECRET_KEY'] = 'f8de2f7257f913eecfa9aae8a3c7750e'
+TRAP_BAD_REQUEST_ERRORS = True
 #app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(hours=23) # define the life span of the token
 
 @app.route('/')
@@ -48,61 +49,72 @@ def login():
 @app.route('/api/v1/data', methods=['GET'])
 @jwt_required()
 def data():
-	try:
-		initialdate = datetime.datetime.strptime(request.args.get('initialdate'), "%Y%m%d").date()
-		finaldate = datetime.datetime.strptime(request.args.get('finaldate'), "%Y%m%d").date()
-		#retail = request.args['retail']
-		conn = mariaDBConnection()
-		cursor = conn.cursor()
-		cursor.execute(
-				"""
-				SELECT *
-				FROM movimiento_api_rest
-				WHERE fecha BETWEEN ? AND ?
-				""",
-				(initialdate, finaldate)
-		)
-
-		row_headers=[x[0] for x in cursor.description]
-		cursor = cursor.fetchall()
-
-		json_data = []
-		json_dict = {}
-		metadata = []
-		total_venta_unidades = 0
-		total_venta_valor = 0
-
-		for result in cursor:
-			json_data.append(dict(zip(row_headers,result)))
-
-		for i in json_data:
-			total_venta_unidades += int(i['venta_unidades'])
-			total_venta_valor += int(i['venta_valor'])
-			i['fecha'] = str(i['fecha'].strftime("%d-%m-%Y"))
-
-		cursorb = conn.cursor()
-		cursorb.execute("Select * from flags")
-		flag = cursorb.fetchall()[0][0]
-
-		#for result in range(0,1):
-		#		print(cursorb.fetchall().index(0))
-
-		metadata.append({
-			'reproceso': flag,
-			'cantidad de registros': len(json_data),
-			'total_venta_unidades': total_venta_unidades,
-			'total_venta_valor': total_venta_valor
-		})
-
-		json_dict['message']=200	
-		json_dict['data']=json_data
-		json_dict['metadata']=metadata	
-
-		return json_dict, 200
-	except Exception as e:
-		print(e)
-
 	
+	initialdate = datetime.datetime.strptime(request.args.get('initialdate'), "%Y%m%d").date()
+	finaldate = datetime.datetime.strptime(request.args.get('finaldate'), "%Y%m%d").date()
+	'''
+	if initialdate == None or finaldate == None:
+		message = "ERR_FILTERS_EMPTY"
+		return jsonify(message), 400
+	elif initialdate > finaldate:
+		message = "ERR_DIFF_DATE"
+		return jsonify(message), 400
+	elif initialdate == '' and finaldate == '':
+		message = "ERR_DATES_NOT_DEFINED"
+		return jsonify(message), 400
+	elif not initialdate == datetime.datetime.strptime(initialdate, "%Y-%m-%d") or finaldate == datetime.datetime.strptime(finaldate, "%Y-%m-%d"):
+		message = ("ERR_DATES_FORMAT")
+		return jsonify(message), 400
+	'''
+	
+	#retail = request.args['retail']
+	conn = mariaDBConnection()
+	cursor = conn.cursor()
+	cursor.execute(
+			"""
+			SELECT *
+			FROM movimiento_api_rest
+			WHERE fecha BETWEEN ? AND ?
+			""",
+			(initialdate, finaldate)
+	)
+
+	row_headers=[x[0] for x in cursor.description]
+	cursor = cursor.fetchall()
+
+	json_data = []
+	json_dict = {}
+	metadata = []
+	total_venta_unidades = 0
+	total_venta_valor = 0
+
+	for result in cursor:
+		json_data.append(dict(zip(row_headers,result)))
+
+	for i in json_data:
+		total_venta_unidades += int(i['venta_unidades'])
+		total_venta_valor += int(i['venta_valor'])
+		i['fecha'] = str(i['fecha'].strftime("%d-%m-%Y"))
+
+	cursorb = conn.cursor()
+	cursorb.execute("Select * from flags")
+	flag = cursorb.fetchall()[0][0]
+
+	#for result in range(0,1):
+	#		print(cursorb.fetchall().index(0))
+
+	metadata.append({
+		'reproceso': flag,
+		'cantidad de registros': len(json_data),
+		'total_venta_unidades': total_venta_unidades,
+		'total_venta_valor': total_venta_valor
+	})
+
+	json_dict['message']=200	
+	json_dict['data']=json_data
+	json_dict['metadata']=metadata	
+
+	return json_dict, 200
 
 @app.route('/api/v1/dailydata', methods=['GET'])
 @jwt_required()
@@ -563,4 +575,4 @@ def populate():
 		return jsonify(json_dict), 200
 
 if __name__ == '__main__':	
-	app.run(host="0.0.0.0", port=5000, debug=True)
+	app.run(host="0.0.0.0", port=80, debug=True)
