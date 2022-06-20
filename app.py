@@ -50,14 +50,11 @@ def login():
 @jwt_required()
 def data():
 	if request.args.get('initialdate') == None and request.args.get('finaldate') == None:
-		message = "ERR_DATES_NOT_DEFINED"
-		return jsonify(message), 400
+		return jsonify({'error': 'ERR_DATES_NOT_DEFINED', 'message': 'En la petición no se está enviando la fecha.'}), 400
 	elif request.args.get('initialdate') == None or request.args.get('finaldate') == None:
-		message = "ERR_FILTERS_EMPTY"
-		return jsonify(message), 400	
-	elif datetime.datetime.strptime(request.args.get('initialdate'), "%Y-%m-%d").date() > datetime.datetime.strptime(request.args.get('finaldate'), "%Y-%m-%d").date():
-		message = "ERR_DIFF_DATE"
-		return jsonify(message), 400
+		return jsonify({'error': 'ERR_FILTERS_EMPTY', 'message': 'Uno o más de los filtros enviados en la petición están vacíos.'}), 400	
+	elif datetime.datetime.strptime(request.args.get('initialdate'), "%Y%m%d").date() > datetime.datetime.strptime(request.args.get('finaldate'), "%Y%m%d").date():
+		return jsonify({'error': 'ERR_FILTERS_EMPTY', 'message': 'La fecha inicio es mayor a la fecha fin.'}), 400
 	elif request.args.get('initialdate') != str(datetime.datetime.strptime(request.args.get('initialdate'), "%Y-%m-%d").date()) or request.args.get('finaldate') != str(datetime.datetime.strptime(request.args.get('finaldate'), "%Y-%m-%d").date()):
 		print(request.args.get('initialdate'))
 		print(datetime.datetime.strptime(request.args.get('initialdate'), "%Y-%m-%d").date())
@@ -67,8 +64,8 @@ def data():
 		message = ("ERR_DATES_FORMAT")
 		return jsonify(message), 400
 	else:
-		initialdate = datetime.datetime.strptime(request.args.get('initialdate'), "%Y-%m-%d").date()
-		finaldate = datetime.datetime.strptime(request.args.get('finaldate'), "%Y-%m-%d").date()
+		initialdate = datetime.datetime.strptime(request.args.get('initialdate'), "%Y%m%d").date()
+		finaldate = datetime.datetime.strptime(request.args.get('finaldate'), "%Y%m%d").date()
 		conn = mariaDBConnection()
 		cursor = conn.cursor()
 		cursor.execute(
@@ -86,23 +83,26 @@ def data():
 		json_data = []
 		json_dict = {}
 		metadata = []
-		total_venta_unidades = 0
-		total_venta_valor = 0
+		total_venta_unidades = 0.0
+		total_venta_valor = 0.0
 
 		for result in cursor:
 			json_data.append(dict(zip(row_headers,result)))
 
 		for i in json_data:
-			total_venta_unidades += int(i['venta_unidades'])
-			total_venta_valor += int(i['venta_valor'])
+			if i['venta_unidades'] != None:
+				total_venta_unidades += float(i['venta_unidades'])
+			else:
+				continue
+			if i['venta_valor'] != None:
+				total_venta_valor += float(i['venta_valor'])
+			else:
+				continue
 			i['fecha'] = str(i['fecha'].strftime("%d-%m-%Y"))
 
 		cursorb = conn.cursor()
 		cursorb.execute("Select * from flags")
 		flag = cursorb.fetchall()[0][0]
-
-		#for result in range(0,1):
-		#		print(cursorb.fetchall().index(0))
 
 		metadata.append({
 			'reproceso': flag,
