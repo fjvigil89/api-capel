@@ -52,16 +52,6 @@ def data():
 	if request.args.get('initialdate') == None and request.args.get('finaldate') == None:
 		return jsonify({'error': 'ERR_DATES_NOT_DEFINED', 'message': 'En la petición no se está enviando la fecha.'}), 400
 	elif request.args.get('initialdate') == None or request.args.get('finaldate') == None:
-<<<<<<< HEAD
-		return jsonify({'error': 'ERR_FILTERS_EMPTY', 'message': 'Uno o más de los filtros enviados en la petición están vacíos.'}), 400	
-	elif datetime.datetime.strptime(request.args.get('initialdate'), "%Y%m%d").date() > datetime.datetime.strptime(request.args.get('finaldate'), "%Y%m%d").date():
-		return jsonify({'error': 'ERR_FILTERS_EMPTY', 'message': 'La fecha inicio es mayor a la fecha fin.'}), 400
-	elif request.args.get('initialdate') != str(datetime.datetime.strptime(request.args.get('initialdate'), "%Y-%m-%d").date()) or request.args.get('finaldate') != str(datetime.datetime.strptime(request.args.get('finaldate'), "%Y-%m-%d").date()):
-		print(request.args.get('initialdate'))
-		print(datetime.datetime.strptime(request.args.get('initialdate'), "%Y-%m-%d").date())
-		print(request.args.get('finaldate'))
-		print(datetime.datetime.strptime(request.args.get('finaldate'), "%Y-%m-%d").date())
-=======
 		message = "ERR_FILTERS_EMPTY"
 		return jsonify({'error': 'ERR_FILTERS_EMPTY', 'message': 'Uno o más de los filtros enviados en la petición están vacíos.'}), 400	
 	elif datetime.datetime.strptime(request.args.get('initialdate'), "%Y%m%d").date() > datetime.datetime.strptime(request.args.get('finaldate'), "%Y%m%d").date():
@@ -72,7 +62,6 @@ def data():
 		#print(datetime.datetime.strptime(request.args.get('initialdate'), "%Y-%m-%d").date())
 		#print(request.args.get('finaldate'))
 		#print(datetime.datetime.strptime(request.args.get('finaldate'), "%Y-%m-%d").date())
->>>>>>> vladimir
 
 		#message = ("ERR_DATES_FORMAT")
 		#return jsonify(message), 400
@@ -104,19 +93,11 @@ def data():
 
 		for i in json_data:
 			if i['venta_unidades'] != None:
-<<<<<<< HEAD
-				total_venta_unidades += float(i['venta_unidades'])
-			else:
-				continue
-			if i['venta_valor'] != None:
-				total_venta_valor += float(i['venta_valor'])
-=======
 				total_venta_unidades += int(i['venta_unidades'])
 			else:
 				continue
 			if i['venta_valor'] != 0:
 				total_venta_valor += int(i['venta_valor'])
->>>>>>> vladimir
 			else:
 				continue
 			i['fecha'] = str(i['fecha'].strftime("%d-%m-%Y"))
@@ -645,4 +626,4 @@ def populate():
 		return jsonify(json_dict), 200
 
 if __name__ == '__main__':	
-	app.run(host="0.0.0.0", port=5000, debug=True)
+	app.run(host="0.0.0.0", port=80, debug=True)
