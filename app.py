@@ -29,7 +29,6 @@ app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(hours=23) # define t
 def home():
 	return render_template('swaggerui.html')
 
-
 @app.route('/api/v1/login', methods=['POST'])
 def login():
 
