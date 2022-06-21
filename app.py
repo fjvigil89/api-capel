@@ -52,19 +52,11 @@ def data():
 	if request.args.get('initialdate') == None and request.args.get('finaldate') == None:
 		return jsonify({'error': 'ERR_DATES_NOT_DEFINED', 'message': 'En la petición no se está enviando la fecha.'}), 400
 	elif request.args.get('initialdate') == None or request.args.get('finaldate') == None:
-		message = "ERR_FILTERS_EMPTY"
 		return jsonify({'error': 'ERR_FILTERS_EMPTY', 'message': 'Uno o más de los filtros enviados en la petición están vacíos.'}), 400	
 	elif datetime.datetime.strptime(request.args.get('initialdate'), "%Y%m%d").date() > datetime.datetime.strptime(request.args.get('finaldate'), "%Y%m%d").date():
-		message = "ERR_DIFF_DATE"
 		return jsonify({'error': 'ERR_DIFF_DATE', 'message': 'La fecha inicio es mayor a la fecha fin.'}), 400
-	#elif request.args.get('initialdate') != str(datetime.datetime.strptime(request.args.get('initialdate'), "%Y-%m-%d").date()) or request.args.get('finaldate') != str(datetime.datetime.strptime(request.args.get('finaldate'), "%Y-%m-%d").date()):
-		#print(request.args.get('initialdate'))
-		#print(datetime.datetime.strptime(request.args.get('initialdate'), "%Y-%m-%d").date())
-		#print(request.args.get('finaldate'))
-		#print(datetime.datetime.strptime(request.args.get('finaldate'), "%Y-%m-%d").date())
-
-		#message = ("ERR_DATES_FORMAT")
-		#return jsonify(message), 400
+	elif request.args.get('initialdate') != str(datetime.datetime.strptime(str(request.args.get('initialdate')), "%Y%m%d").date().strftime("%Y%m%d")) or request.args.get('finaldate') != str(datetime.datetime.strptime(str(request.args.get('finaldate')), "%Y%m%d").date().strftime("%Y%m%d")):
+		return jsonify({'error': 'ERR_DATES_FORMAT', 'message': 'Las fechas enviadas tiene un formato incorrecto. El formato correcto es: YYYYMMDD'}), 400
 	else:
 		initialdate = datetime.datetime.strptime(request.args.get('initialdate'), "%Y%m%d").date()
 		finaldate = datetime.datetime.strptime(request.args.get('finaldate'), "%Y%m%d").date()
@@ -75,6 +67,7 @@ def data():
 				SELECT *
 				FROM movimiento_api_rest
 				WHERE fecha BETWEEN ? AND ?
+				ORDER BY fecha ASC
 				""",
 				(initialdate, finaldate)
 		)
@@ -92,16 +85,12 @@ def data():
 			json_data.append(dict(zip(row_headers,result)))
 
 		for i in json_data:
+			i['fecha'] = i['fecha'].strftime("%d-%m-%Y")
 			if i['venta_unidades'] != None:
 				total_venta_unidades += int(i['venta_unidades'])
-			else:
-				continue
 			if i['venta_valor'] != 0:
 				total_venta_valor += int(i['venta_valor'])
-			else:
-				continue
-			i['fecha'] = str(i['fecha'].strftime("%d-%m-%Y"))
-
+			
 		cursorb = conn.cursor()
 		cursorb.execute("Select * from flags")
 		flag = cursorb.fetchall()[0][0]
@@ -115,9 +104,7 @@ def data():
 
 		json_dict['message']=200	
 		json_dict['data']=json_data
-		json_dict['metadata']=metadata	
-
-		print(sys.getsizeof(json_dict))
+		json_dict['metadata']=metadata
 
 		return json_dict, 200
 
@@ -535,7 +522,7 @@ def populate():
 		datecursor.execute("""SELECT MAX(fecha), ? FROM `b2b-andina`.movimiento GROUP BY ?""", (retailer, retailer))
 		dateflag = datecursor.fetchall()[0][0]
 		print(dateflag)
-		initialdate = dateflag - datetime.timedelta(4)
+		initialdate = dateflag - datetime.timedelta(5)
 		print(initialdate)
 		conn = mariaDBConnection()
 		cursor = conn.cursor()
