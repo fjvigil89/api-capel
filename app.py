@@ -137,15 +137,11 @@ def dailydata():
 		json_data.append(dict(zip(row_headers,result)))
 
 	for i in json_data:
+		i['fecha'] = i['fecha'].strftime("%d-%m-%Y")
 		if i['venta_unidades'] != None:
 			total_venta_unidades += int(i['venta_unidades'])
-		else:
-			continue
 		if i['venta_valor'] != 0:
 			total_venta_valor += int(i['venta_valor'])
-		else:
-			continue
-		i['fecha'] = str(i['fecha'].strftime("%d-%m-%Y"))
 
 	cursorb = conn.cursor()
 	cursorb.execute("Select * from flags")
@@ -195,15 +191,11 @@ def monthlydata():
 		json_data.append(dict(zip(row_headers,result)))
 
 	for i in json_data:
+		i['fecha'] = i['fecha'].strftime("%d-%m-%Y")
 		if i['venta_unidades'] != None:
 			total_venta_unidades += int(i['venta_unidades'])
-		else:
-			continue
 		if i['venta_valor'] != 0:
 			total_venta_valor += int(i['venta_valor'])
-		else:
-			continue
-		i['fecha'] = str(i['fecha'].strftime("%d-%m-%Y"))
 	
 	metadata.append({
 		'reproceso': 'false',
@@ -252,15 +244,11 @@ def filter():
 		json_data.append(dict(zip(row_headers,result)))
 
 	for i in json_data:
+		i['fecha'] = i['fecha'].strftime("%d-%m-%Y")
 		if i['venta_unidades'] != None:
 			total_venta_unidades += int(i['venta_unidades'])
-		else:
-			continue
 		if i['venta_valor'] != 0:
 			total_venta_valor += int(i['venta_valor'])
-		else:
-			continue
-		i['fecha'] = str(i['fecha'].strftime("%d-%m-%Y"))
 	
 	cursorb = conn.cursor()
 	cursorb.execute("Select * from flags")
@@ -311,15 +299,11 @@ def filtercadena():
 		json_data.append(dict(zip(row_headers,result)))
 
 	for i in json_data:
+		i['fecha'] = i['fecha'].strftime("%d-%m-%Y")
 		if i['venta_unidades'] != None:
 			total_venta_unidades += int(i['venta_unidades'])
-		else:
-			continue
 		if i['venta_valor'] != 0:
 			total_venta_valor += int(i['venta_valor'])
-		else:
-			continue
-		i['fecha'] = str(i['fecha'].strftime("%d-%m-%Y"))
 
 	cursorb = conn.cursor()
 	cursorb.execute("Select * from flags")
@@ -369,15 +353,11 @@ def filtermarca():
 		json_data.append(dict(zip(row_headers,result)))
 
 	for i in json_data:
+		i['fecha'] = i['fecha'].strftime("%d-%m-%Y")
 		if i['venta_unidades'] != None:
 			total_venta_unidades += int(i['venta_unidades'])
-		else:
-			continue
 		if i['venta_valor'] != 0:
 			total_venta_valor += int(i['venta_valor'])
-		else:
-			continue
-		i['fecha'] = str(i['fecha'].strftime("%d-%m-%Y"))
 
 	cursorb = conn.cursor()
 	cursorb.execute("Select * from flags")
@@ -427,15 +407,11 @@ def filterciudad():
 		json_data.append(dict(zip(row_headers,result)))
 
 	for i in json_data:
+		i['fecha'] = i['fecha'].strftime("%d-%m-%Y")
 		if i['venta_unidades'] != None:
 			total_venta_unidades += int(i['venta_unidades'])
-		else:
-			continue
 		if i['venta_valor'] != 0:
 			total_venta_valor += int(i['venta_valor'])
-		else:
-			continue
-		i['fecha'] = str(i['fecha'].strftime("%d-%m-%Y"))
 
 	cursorb = conn.cursor()
 	cursorb.execute("Select * from flags")
@@ -485,15 +461,11 @@ def filtercomuna():
 		json_data.append(dict(zip(row_headers,result)))
 
 	for i in json_data:
+		i['fecha'] = i['fecha'].strftime("%d-%m-%Y")
 		if i['venta_unidades'] != None:
 			total_venta_unidades += int(i['venta_unidades'])
-		else:
-			continue
 		if i['venta_valor'] != 0:
 			total_venta_valor += int(i['venta_valor'])
-		else:
-			continue
-		i['fecha'] = str(i['fecha'].strftime("%d-%m-%Y"))
 
 	cursorb = conn.cursor()
 	cursorb.execute("Select * from flags")
