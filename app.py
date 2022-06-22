@@ -500,27 +500,34 @@ def filtercomuna():
 
 @app.route('/api/v1/populate', methods=['GET'])
 def populate():
-	finaldate = datetime.date.today()
-	retailers = ['CENCOSUD', 'SMU', 'WALMART', 'TOTTUS']
-	for retailer in retailers:
-		connbase = mariaDBConnectionII()
-		datecursor = connbase.cursor()
-		datecursor.execute("""SELECT MAX(fecha), ? FROM `b2b-andina`.movimiento GROUP BY ?""", (retailer, retailer))
-		#row_headers=[x[0] for x in cursor.description]
-		#dateflag = datecursor.fetchall()[0][0]
-		dateflag = datecursor.fetchall()
+	conn = mariaDBConnection()
+	dropcursor= conn.cursor()
+	dropcursor.execute("""TRUNCATE `b2b-api`.movimiento_api_rest;""")
+	dropcursor.close()
 
-		#for row in row_headers:
-		#	dateRetail = dict(zip(row_headers,row))
-		
+	retailers = ['SMU', 'WALMART', 'TOTTUS', 'CENCOSUD']
+	for retailer in retailers:
+		datecursor = conn.cursor()
+		datecursor.execute(
+			"""
+			SELECT MAX(fecha), retail
+			FROM `b2b-andina`.movimiento 
+			GROUP BY retail
+			"""
+		)
+
+		dateflag = datecursor.fetchall()
+		print(f'dateflag: {dateflag}')
+
 		for i in range(0, len(dateflag)):
 			if retailer == dateflag[i][1]:
 				basedate = datetime.datetime.strptime(str(dateflag[i][0]), "%Y-%m-%d").date()
 		
-		initialdate = basedate - datetime.timedelta(4)
-		conn = mariaDBConnection()
+		print(f'basedate: {basedate}')
+		
+		initialdate = basedate - datetime.timedelta(2)
+		print('initial', initialdate)
 		cursor = conn.cursor()
-		i_distribuidor = 'CAPEL'
 
 		cursor.execute(
 			"""
@@ -596,14 +603,15 @@ def populate():
 			""",
 			(str(initialdate), str(basedate), retailer)
 		)
-		conn.commit()
-		rows = cursor.rowcount
 
-		json_dict = {}
-		json_dict['Message'] = 'Succesfull!!'
-		json_dict['RowCount'] = rows
+	conn.commit()
+	rows = cursor.rowcount
 
-		return jsonify(json_dict), 200
+	json_dict = {}
+	json_dict['Message'] = 'Succesfull!!'
+	json_dict['RowCount'] = rows
+
+	return jsonify(json_dict), 200
 
 if __name__ == '__main__':
 	app.run(host="0.0.0.0", port=80, debug=True)
