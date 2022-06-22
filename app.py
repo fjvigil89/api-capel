@@ -1,4 +1,3 @@
-
 from flask import Flask, jsonify, request, render_template, Response
 from werkzeug.security import generate_password_hash,check_password_hash
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required
@@ -8,10 +7,12 @@ from pymongo import MongoClient
 import datetime
 import bcrypt
 import sys
+import json
 #from flask_cors import CORS, cross_origin
 #from waitress import serve
 
 app = Flask(__name__)
+app.config['MAX_CONTENT_LENGTH'] = 1000
 #CORS(app)
 
 #For production purposes
@@ -22,8 +23,7 @@ users_collection = db["users"]
 jwt = JWTManager(app) # initialize JWTManager
 app.config['JWT_TOKEN_LOCATION'] = ['headers', 'query_string']
 app.config['JWT_SECRET_KEY'] = 'f8de2f7257f913eecfa9aae8a3c7750e'
-TRAP_BAD_REQUEST_ERRORS = True
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(hours=23) # define the life span of the token
+#app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(hours=23) # define the life span of the token
 
 @app.route('/')
 def home():
@@ -31,7 +31,7 @@ def home():
 
 @app.route('/api/v1/login', methods=['POST'])
 def login():
-
+	
 	login_details = request.args # store the json body request
 	user_from_db = users_collection.find_one({'username': login_details['username']})  # search for user in database
 
@@ -40,7 +40,7 @@ def login():
 
 		if decrpted_password:
 			access_token = create_access_token(identity=user_from_db['username']) # create jwt token
-			#app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(hours=user_from_db['duration_token_in_hours']) # define the life span of the token
+			app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(hours=user_from_db['duration_token_in_hours']) # define the life span of the token
 			return jsonify(access_token=access_token), 200
 
 	return jsonify({'msg': 'ACCESS_FAILURE'}), 401
@@ -50,12 +50,14 @@ def login():
 def data():
 	if request.args.get('initialdate') == None and request.args.get('finaldate') == None:
 		return jsonify({'error': 'ERR_DATES_NOT_DEFINED', 'message': 'En la petición no se está enviando la fecha.'}), 400
-	elif request.args.get('initialdate') == None or request.args.get('finaldate') == None:
-		return jsonify({'error': 'ERR_FILTERS_EMPTY', 'message': 'Uno o más de los filtros enviados en la petición están vacíos.'}), 400	
+	elif request.args.get('initialdate') == None:	
+		return jsonify({'error': 'ERR_FILTERS_EMPTY', 'message': 'Uno o más de los filtros enviados en la petición están vacíos.'}), 400
+	elif request.args.get('finaldate') == None:
+		return jsonify({'error': 'ERR_FILTERS_EMPTY', 'message': 'Uno o más de los filtros enviados en la petición están vacíos.'}), 400
+	elif str(request.args.get('initialdate')).isdigit() == False or str(request.args.get('finaldate')).isdigit() == False:
+		return jsonify({'error': 'ERR_DATES_FORMAT', 'message': 'Las fechas enviadas tiene un formato incorrecto. El formato correcto es: YYYYMMDD'}), 400	
 	elif datetime.datetime.strptime(request.args.get('initialdate'), "%Y%m%d").date() > datetime.datetime.strptime(request.args.get('finaldate'), "%Y%m%d").date():
 		return jsonify({'error': 'ERR_DIFF_DATE', 'message': 'La fecha inicio es mayor a la fecha fin.'}), 400
-	elif request.args.get('initialdate') != str(datetime.datetime.strptime(str(request.args.get('initialdate')), "%Y%m%d").date().strftime("%Y%m%d")) or request.args.get('finaldate') != str(datetime.datetime.strptime(str(request.args.get('finaldate')), "%Y%m%d").date().strftime("%Y%m%d")):
-		return jsonify({'error': 'ERR_DATES_FORMAT', 'message': 'Las fechas enviadas tiene un formato incorrecto. El formato correcto es: YYYYMMDD'}), 400
 	else:
 		initialdate = datetime.datetime.strptime(request.args.get('initialdate'), "%Y%m%d").date()
 		finaldate = datetime.datetime.strptime(request.args.get('finaldate'), "%Y%m%d").date()
@@ -87,7 +89,7 @@ def data():
 			i['fecha'] = i['fecha'].strftime("%d-%m-%Y")
 			if i['venta_unidades'] != None:
 				total_venta_unidades += int(i['venta_unidades'])
-			if i['venta_valor'] != 0:
+			if i['venta_valor'] != None:
 				total_venta_valor += int(i['venta_valor'])
 			
 		cursorb = conn.cursor()
@@ -104,8 +106,22 @@ def data():
 		json_dict['message']=200	
 		json_dict['data']=json_data
 		json_dict['metadata']=metadata
+		
+		#print(json_dict['data'])
 
-		return json_dict, 200
+		##def generate():
+		#	for row in json_dict['data']:
+		#		yield row
+		
+		#generate()
+
+		try:
+			#app.response_class(generate(), mimetype='application/json')
+			return json_dict, 200
+		except Exception as error:
+			print(error)
+
+		#return json_dict, 200
 
 @app.route('/api/v1/dailydata', methods=['GET'])
 @jwt_required()
@@ -139,7 +155,7 @@ def dailydata():
 		i['fecha'] = i['fecha'].strftime("%d-%m-%Y")
 		if i['venta_unidades'] != None:
 			total_venta_unidades += int(i['venta_unidades'])
-		if i['venta_valor'] != 0:
+		if i['venta_valor'] != None:
 			total_venta_valor += int(i['venta_valor'])
 
 	cursorb = conn.cursor()
@@ -193,7 +209,7 @@ def monthlydata():
 		i['fecha'] = i['fecha'].strftime("%d-%m-%Y")
 		if i['venta_unidades'] != None:
 			total_venta_unidades += int(i['venta_unidades'])
-		if i['venta_valor'] != 0:
+		if i['venta_valor'] != None:
 			total_venta_valor += int(i['venta_valor'])
 	
 	metadata.append({
@@ -246,7 +262,7 @@ def filter():
 		i['fecha'] = i['fecha'].strftime("%d-%m-%Y")
 		if i['venta_unidades'] != None:
 			total_venta_unidades += int(i['venta_unidades'])
-		if i['venta_valor'] != 0:
+		if i['venta_valor'] != None:
 			total_venta_valor += int(i['venta_valor'])
 	
 	cursorb = conn.cursor()
@@ -270,7 +286,6 @@ def filter():
 @jwt_required()
 def filtercadena():
 	initialdate = datetime.datetime.strptime(request.args.get('initialdate'), "%Y%m%d").date()
-	print(initialdate)
 	finaldate = datetime.datetime.strptime(request.args.get('finaldate'), "%Y%m%d").date()
 	retail = request.args['retail']
 	conn = mariaDBConnection()
@@ -278,7 +293,7 @@ def filtercadena():
 	cursor.execute(
 			"""
 			SELECT *
-			FROM movimiento_api_rest
+			FROM `b2b-api`.movimiento_api_rest
 			WHERE fecha BETWEEN ? AND ?
 			AND s_cadena = ?
 			""",
@@ -301,7 +316,7 @@ def filtercadena():
 		i['fecha'] = i['fecha'].strftime("%d-%m-%Y")
 		if i['venta_unidades'] != None:
 			total_venta_unidades += int(i['venta_unidades'])
-		if i['venta_valor'] != 0:
+		if i['venta_valor'] != None:
 			total_venta_valor += int(i['venta_valor'])
 
 	cursorb = conn.cursor()
@@ -355,7 +370,7 @@ def filtermarca():
 		i['fecha'] = i['fecha'].strftime("%d-%m-%Y")
 		if i['venta_unidades'] != None:
 			total_venta_unidades += int(i['venta_unidades'])
-		if i['venta_valor'] != 0:
+		if i['venta_valor'] != None:
 			total_venta_valor += int(i['venta_valor'])
 
 	cursorb = conn.cursor()
@@ -409,7 +424,7 @@ def filterciudad():
 		i['fecha'] = i['fecha'].strftime("%d-%m-%Y")
 		if i['venta_unidades'] != None:
 			total_venta_unidades += int(i['venta_unidades'])
-		if i['venta_valor'] != 0:
+		if i['venta_valor'] != None:
 			total_venta_valor += int(i['venta_valor'])
 
 	cursorb = conn.cursor()
@@ -463,7 +478,7 @@ def filtercomuna():
 		i['fecha'] = i['fecha'].strftime("%d-%m-%Y")
 		if i['venta_unidades'] != None:
 			total_venta_unidades += int(i['venta_unidades'])
-		if i['venta_valor'] != 0:
+		if i['venta_valor'] != None:
 			total_venta_valor += int(i['venta_valor'])
 
 	cursorb = conn.cursor()
@@ -491,10 +506,18 @@ def populate():
 		connbase = mariaDBConnectionII()
 		datecursor = connbase.cursor()
 		datecursor.execute("""SELECT MAX(fecha), ? FROM `b2b-andina`.movimiento GROUP BY ?""", (retailer, retailer))
-		dateflag = datecursor.fetchall()[0][0]
-		print(dateflag)
-		initialdate = dateflag - datetime.timedelta(5)
-		print(initialdate)
+		#row_headers=[x[0] for x in cursor.description]
+		#dateflag = datecursor.fetchall()[0][0]
+		dateflag = datecursor.fetchall()
+
+		#for row in row_headers:
+		#	dateRetail = dict(zip(row_headers,row))
+		
+		for i in range(0, len(dateflag)):
+			if retailer == dateflag[i][1]:
+				basedate = datetime.datetime.strptime(str(dateflag[i][0]), "%Y-%m-%d").date()
+		
+		initialdate = basedate - datetime.timedelta(4)
 		conn = mariaDBConnection()
 		cursor = conn.cursor()
 		i_distribuidor = 'CAPEL'
@@ -571,8 +594,7 @@ def populate():
 			, i_item
 			)	
 			""",
-			#(str(finaldate), str(initialdate), retailer)
-			(str(initialdate), str(dateflag), retailer)
+			(str(initialdate), str(basedate), retailer)
 		)
 		conn.commit()
 		rows = cursor.rowcount
@@ -583,5 +605,5 @@ def populate():
 
 		return jsonify(json_dict), 200
 
-if __name__ == '__main__':	
+if __name__ == '__main__':
 	app.run(host="0.0.0.0", port=80, debug=True)
