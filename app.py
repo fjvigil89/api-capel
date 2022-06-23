@@ -507,6 +507,7 @@ def populate():
 
 	retailers = ['SMU', 'WALMART', 'TOTTUS', 'CENCOSUD']
 	for retailer in retailers:
+<<<<<<< HEAD
 		datecursor = conn.cursor()
 		datecursor.execute(
 			"""
@@ -519,14 +520,31 @@ def populate():
 		dateflag = datecursor.fetchall()
 		print(f'dateflag: {dateflag}')
 
+=======
+		connbase = mariaDBConnectionII()
+		datecursor = connbase.cursor()
+		datecursor.execute("""SELECT MAX(fecha), ? FROM `b2b-andina`.movimiento GROUP BY ?""", (retailer, retailer))
+		#row_headers=[x[0] for x in cursor.description]
+		#dateflag = datecursor.fetchall()[0][0]
+		dateflag = datecursor.fetchall()
+
+		#for row in row_headers:
+		#	dateRetail = dict(zip(row_headers,row))
+		
+>>>>>>> 1f34dee (Populate fixed)
 		for i in range(0, len(dateflag)):
 			if retailer == dateflag[i][1]:
 				basedate = datetime.datetime.strptime(str(dateflag[i][0]), "%Y-%m-%d").date()
 		
+<<<<<<< HEAD
 		print(f'basedate: {basedate}')
 		
 		initialdate = basedate - datetime.timedelta(2)
 		print('initial', initialdate)
+=======
+		initialdate = basedate - datetime.timedelta(4)
+		conn = mariaDBConnection()
+>>>>>>> 1f34dee (Populate fixed)
 		cursor = conn.cursor()
 
 		cursor.execute(
@@ -611,7 +629,10 @@ def populate():
 	json_dict['Message'] = 'Succesfull!!'
 	json_dict['RowCount'] = rows
 
+<<<<<<< HEAD
 	return jsonify(json_dict), 200
 
+=======
+>>>>>>> 1f34dee (Populate fixed)
 if __name__ == '__main__':
 	app.run(host="0.0.0.0", port=80, debug=True)
