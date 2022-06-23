@@ -48,10 +48,7 @@ def data():
 	conf_collection = db['configuraciones']
 	errorDocument = conf_collection.find({})
 	for error in errorDocument:
-		print(error)
 		allowedSize = error['ERR_RESPONSE_TOO_LARGE']
-	
-	print(allowedSize)
 
 	if request.args.get('initialdate') == None and request.args.get('finaldate') == None:
 		return jsonify({'error': 'ERR_DATES_NOT_DEFINED', 'message': 'En la petición no se está enviando la fecha.'}), 400
