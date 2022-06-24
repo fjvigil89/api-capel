@@ -10,13 +10,11 @@ import bcrypt
 #from waitress import serve
 
 app = Flask(__name__)
-app.config['MAX_CONTENT_LENGTH'] = 1000
 #CORS(app)
 
 jwt = JWTManager(app) # initialize JWTManager
 app.config['JWT_TOKEN_LOCATION'] = ['headers', 'query_string']
 app.config['JWT_SECRET_KEY'] = 'f8de2f7257f913eecfa9aae8a3c7750e'
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(hours=23) # define the life span of the token
 
 @app.route('/')
 def home():
@@ -252,7 +250,6 @@ def monthlydata():
 
 		return jsonify({'error': 'ERR_RESPONSE_TOO_LARGE', 'message': 'El tamaño de la información solicitada es demasiado grande y se requiere utilizar filtros.'}), 400
 		
-
 @app.route('/api/v1/filter',  methods=['GET'])
 @jwt_required()
 def filter():
@@ -660,7 +657,6 @@ def populate():
 		)
 
 		dateflag = datecursor.fetchall()
-		print(f'dateflag: {dateflag}')
 
 		for i in range(0, len(dateflag)):
 			if retailer == dateflag[i][1]:
